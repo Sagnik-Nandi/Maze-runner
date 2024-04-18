@@ -4,7 +4,7 @@ import random
 #initializes pygame module!!
 pygame.init()
 
-screen_width, screen_height=720,720
+screen_width, screen_height=1080,720
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Let's make a game!")
 clock=pygame.time.Clock()
@@ -84,7 +84,7 @@ class Maze:
             n.walls['Up']=False
 
     #generates maze and returns a list/grid of cells
-    #DFS algorithm is used with backtracing the cells it has visited
+    #DFS algorithm is used with recursively backtracking the cells it has visited
     def generate_maze(self, level):
         # print("Now generating maze")
         current_cell = self.grid_cells[0][0]
@@ -138,4 +138,70 @@ class Maze:
                 neighbouring_walls['Left']=False
                 continue
 
+            # self.generate_solution()
         return self.grid_cells
+
+
+
+    # check walls between neighbours
+    def check_neighbours_by_walls(self,c):
+        walls=c.walls
+        neighbours=[]
+        if walls["Up"]:
+            up=Cell(c.x,c.y-1,c.width, c.thickness)
+            neighbours.append(up)
+        if walls["Down"]:
+            down=Cell(c.x,c.y+1,c.width, c.thickness)
+            neighbours.append(down)
+        if walls["Left"]:
+            left=Cell(c.x-1,c.y,c.width, c.thickness)
+            neighbours.append(left)
+        if walls["Right"]:
+            right=Cell(c.x+1,c.y,c.width, c.thickness)
+            neighbours.append(right)
+        return neighbours
+
+
+    # using DFS again to solve maze
+    def generate_solution(self):
+        path={}
+        visited=set()
+        stack=[self.grid_cells[0][0]]
+        n=len(self.grid_cells)
+
+        while stack :
+            c=stack.pop()
+            if c.x+c.y==2*(n-1) : #goal found
+                break
+            if c not in visited :
+                visited.add(c)
+                neighbours=self.check_neighbours_by_walls(c)
+                for nr in neighbours :
+                    if nr not in visited :
+                        stack.append(nr)
+                        path[nr]=c 
+                        # path dictionary stores parent cell of each neighbour..so that it can backtrace via path to reach start
+                
+        # reconstructing the path
+        solution_path=[]
+        solution_path_proper=[]
+        c=self.grid_cells[n-1][n-1]
+        d=c #just initializing
+        while c != self.grid_cells[0][0] :
+            d=path[c] # d is the parent 
+            solution_path_proper.append(d)
+            if d.x<c.x:
+                solution_path.append("R") 
+            if d.x>c.x:
+                solution_path.append("L")
+            if d.y>c.y:
+                solution_path.append("U")  
+            if d.y<c.y:
+                solution_path.append("D")
+                # recall we will actually backtrack
+            c=d 
+            # updating current cell
+        solution_path_proper.append(self.grid_cells[0][0]) 
+        solution_path_proper.reverse()
+
+        return solution_path

@@ -4,7 +4,7 @@ from maze import *
 #initializes pygame module!!
 pygame.init()
 
-screen_width, screen_height=720,720
+screen_width, screen_height=1080,720
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Let's make a game!")
 clock=pygame.time.Clock()
@@ -54,7 +54,9 @@ class Player:
         loc=self.location(grid)
 
         # check if player has reached goal
-        if loc.x//step + loc.y//step != 2*(len(grid)-1):
+        if loc.x//step + loc.y//step == 2*(len(grid)-1):
+            return False
+        else :
             if event=="left" and not loc.walls["Left"]:
                 self.x-=step
             if event=="right" and not loc.walls["Right"]:
@@ -64,20 +66,15 @@ class Player:
             if event=="down" and not loc.walls["Down"]:
                 self.y+=step
 
-        rect2=pygame.Rect(self.x, self.y, self.width, self.height)
+            rect2=pygame.Rect(self.x, self.y, self.width, self.height)
 
-        self.draw(player_col)
-        if rect1 != rect2 : 
-            screen.fill(maze_col, rect1) #fills old rectangle with black to create moving effect instead of dragging 
+            self.draw(player_col)
+            if rect1 != rect2 : 
+                screen.fill(maze_col, rect1) #fills old rectangle with black to create moving effect instead of dragging 
     
+            return True
         # new_rect=pygame.Rect(self.x, self.y, self.width, self.height)
         # print("Removed rect", rect.center)
         # print("now rect at", new_rect.center)
 
-    def goal(self):
-        image=pygame.image.load("images/You win!.webp")
-        image=pygame.transform.scale(image, (screen_width//2, screen_height//2))
-        screen.blit(image, (screen_width//4, screen_height//4))
 
-
-    

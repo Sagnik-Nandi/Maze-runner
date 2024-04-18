@@ -4,9 +4,9 @@ import pygame
 pygame.init()
 
 # important variables
-screen_width, screen_height=720,720
+screen_width, screen_height=1080,720
 button_width, button_height=screen_width//4, screen_height//20
-button_x, button_y=(screen_width-button_width)//2, screen_height//5
+button_x, button_y=(screen_width-button_width)//2, screen_height//6
 screen=pygame.display.set_mode((screen_width, screen_height))
 
 font_btn=pygame.font.SysFont('Lucida Calligraphy', 24, italic=True)
@@ -37,6 +37,7 @@ class Buttons:
             # print("Mouse inside ", self)
             if pygame.mouse.get_pressed()[0]==1: #left click
                 self.clicked=True
+                # print(self.text,"was clicked")
                 pygame.draw.rect(screen, self.click_col, self.rect)
             elif pygame.mouse.get_pressed()[0]==0 and self.clicked==True:
                 self.clicked=False
