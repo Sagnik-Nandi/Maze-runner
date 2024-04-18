@@ -1,0 +1,39 @@
+Maze making
+https://thepythoncode.com/article/build-a-maze-game-in-python
+https://electronstudio.github.io/pygame-zero-book/chapters/maze.html
+https://stackoverflow.com/questions/72379325/how-can-i-change-my-dfs-maze-algorithm-to-generate-more-than-one-path-be-not-per?newreg=726bf1fc30034641bb3c365f536f0c33
+https://stackoverflow.com/questions/22305644/how-to-generate-a-maze-with-more-than-one-successful-path?rq=3
+
+Youtube playlist
+https://www.youtube.com/watch?v=i6xMBig-pP4&list=PLzMcBGfZo4-lp3jAExUCewBfMx3UZFkh5&index=1
+https://www.youtube.com/watch?v=2-DNswzCkqk&list=PLzMcBGfZo4-lp3jAExUCewBfMx3UZFkh5&index=3
+https://www.youtube.com/watch?v=vc1pJ8XdZa0&list=PLzMcBGfZo4-lp3jAExUCewBfMx3UZFkh5&index=6
+https://www.youtube.com/watch?v=1aGuhUFwvXA&list=PLzMcBGfZo4-lp3jAExUCewBfMx3UZFkh5&index=7
+
+More from youtube
+https://www.youtube.com/watch?v=G8MYGDf_9ho
+https://www.youtube.com/watch?v=2iyx8_elcYg
+https://www.youtube.com/watch?v=jyrP0dDGqgY
+https://github.com/russs123/pygame_tutorials/tree/main/Button
+https://www.youtube.com/watch?v=Qdeb1iinNtk&list=PLX5fBCkxJmm3nAalPU6gGfRIFLlghRuYy&index=2
+
+GFG, stackoverflow and documentation
+https://www.pygame.org/docs/ref/display.html
+https://www.pygame.org/docs/ref/music.html
+https://www.pygame.org/docs/ref/key.html
+https://www.geeksforgeeks.org/pygame-surface/?ref=lbp
+https://stackoverflow.com/questions/50373036/convert-rectangle-to-surface-in-pygame
+https://stackoverflow.com/questions/30720665/countdown-timer-in-pygame
+
+Music credits
+theme_2
+Sneaky Snitch by Kevin MacLeod | https://incompetech.com/
+Music promoted by https://www.chosic.com/free-music/all/
+Creative Commons CC BY 3.0
+https://creativecommons.org/licenses/by/3.0/
+theme_3
+Foam Rubber by Alexander Nakarada | https://creatorchords.com
+Music promoted on https://www.chosic.com/free-music/all/
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/
+ 

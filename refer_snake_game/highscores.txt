@@ -1,0 +1,6 @@
+This file stores 5 highest scores
+8,nenwvkds
+5,sagnik
+0,sagnik
+0,sagnik
+0,sagnik
