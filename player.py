@@ -4,7 +4,7 @@ from maze import *
 #initializes pygame module!!
 pygame.init()
 
-screen_width, screen_height=1080,720
+# screen_width, screen_height=1080,720 (since we are importing from maze this line is not required)
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Let's make a game!")
 clock=pygame.time.Clock()
@@ -44,14 +44,15 @@ class Player:
     def location(self, grid):
         w=grid[0][0].width
         return grid[self.y//w][self.x//w]
+            
 
     # moves the player
     def move(self,event,grid,maze_col, player_col):
-        # cell1=self.location()
-        step=grid[0][0].width
-
+        
         rect1=pygame.Rect(self.x, self.y, self.width, self.height)
         loc=self.location(grid)
+
+        step=grid[0][0].width
 
         # check if player has reached goal
         if loc.x//step + loc.y//step == 2*(len(grid)-1):
@@ -61,9 +62,9 @@ class Player:
                 self.x-=step
             if event=="right" and not loc.walls["Right"]:
                 self.x+=step
-            if event=="up" and not loc.walls["Up"]:
+            if event=="up" and not loc.walls["Up"] :
                 self.y-=step
-            if event=="down" and not loc.walls["Down"]:
+            if event=="down" and not loc.walls["Down"] :
                 self.y+=step
 
             rect2=pygame.Rect(self.x, self.y, self.width, self.height)

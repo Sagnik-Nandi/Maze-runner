@@ -144,21 +144,31 @@ class Maze:
 
 
     # check walls between neighbours
-    def check_neighbours_by_walls(self,c):
+    def check_neighbours_by_walls(self,c,grid, skip=None):
         walls=c.walls
+        w,x,y=c.width,c.x,c.y
         neighbours=[]
-        if walls["Up"]:
-            up=Cell(c.x,c.y-1,c.width, c.thickness)
+        # print("checking neighbours of", c.x, c.y)
+        if not walls["Up"] and y>=w:
+            up=grid[y//w-1][x//w]
             neighbours.append(up)
-        if walls["Down"]:
-            down=Cell(c.x,c.y+1,c.width, c.thickness)
+            # print("appended up")
+        if not walls["Down"] and y<self.ydim-w:
+            down=grid[y//w+1][x//w]
             neighbours.append(down)
-        if walls["Left"]:
-            left=Cell(c.x-1,c.y,c.width, c.thickness)
+            # print("appended down")
+        if not walls["Left"] and x>=w:
+            left=grid[y//w][x//w-1]
             neighbours.append(left)
-        if walls["Right"]:
-            right=Cell(c.x+1,c.y,c.width, c.thickness)
+            # print("appended left")
+        if not walls["Right"] and x<self.xdim-w:
+            right=grid[y//w][x//w+1]
             neighbours.append(right)
+            # print("appended right")
+            
+        if skip in neighbours:
+            # print("removed",skip)
+            neighbours.remove(skip)
         return neighbours
 
 

@@ -1,6 +1,7 @@
 import pygame
 from maze import *
 from player import *
+from enemy import *
 from buttons import *
 
 # initializes pygame module!!
@@ -10,12 +11,13 @@ pygame.init()
 screen_col=(200,25,0) #red
 maze_col=(0,50,0) #dark green
 player_col=(200,0,0) #red
+enemy_col=(150,0,150) #dark blue
 text_col=(200,200,200) #white
 sidebar_col=(25,100,225) #violet 
 
 screen_width, screen_height=1080,720
 maze_width=720
-# IF you change this then make sure to change it over all files!!
+# IF you change this then make sure to change it over all files!! (@"v")
 # or if you change it to say 800,800 then change the factors which decide cellsize, playersize etc.
 
 font = pygame.font.SysFont('Lucida Calligraphy', 36)
@@ -122,7 +124,7 @@ def menu():
 
     level_chosen=False
     while not level_chosen:
-        difficulty=font.render("Choose a difficulty Level",False,text_col)
+        difficulty=font.render("Choose a difficulty Level",True,text_col)
         screen.blit(difficulty, ((screen_width-difficulty.get_width())//2, screen_height//6))
         easy.draw_button()
         medium.draw_button()
@@ -161,7 +163,7 @@ def menu():
 
 def setup(menu_required=True):
     # print("setup called")
-    global maze1, grid, player1
+    global maze1, grid, player1, enemies
     # global level, cell_size, cell_wall_thickness, player1 # became global from previous function
     if menu_required :
         menu()
@@ -178,6 +180,27 @@ def setup(menu_required=True):
         for cell in row:
             cell.draw_walls()
 
+    # Creating enemy
+    enemies=dict()
+    for i in range(2):
+        rand_cell=grid[random.randint(0,len(grid)-1)][random.randint(0,len(grid)-1)]
+        if rand_cell==grid[0][0]:
+            rand_cell=grid[random.randint(0,len(grid)-1)][random.randint(0,len(grid)-1)]
+        rx,ry,w,t=rand_cell.x, rand_cell.y, rand_cell.width, rand_cell.thickness
+        enemy1 = Enemy(rx+t, ry+t, player_size)
+
+        loc=grid[ry//w][rx//w]
+        close_neighbours=maze1.check_neighbours_by_walls(loc,grid,grid[0][0])
+        far_neighbours={nr : maze1.check_neighbours_by_walls(nr,grid,loc) for nr in close_neighbours}
+        
+        cell1=loc
+        cell2=random.choice(close_neighbours)
+        cell3=random.choice(far_neighbours[cell2])
+        cells=[cell1, cell2, cell3]
+        for i in range(len(cells)):
+            print("final range of cells",cells[i].x, cells[i].y)
+        
+        enemies[enemy1]=cells
 
     # Creating player
     player1 = Player(x1+cell_wall_thickness,y1+cell_wall_thickness,player_size)
@@ -236,9 +259,32 @@ def gameloop():
             #     if event.key == pygame.K_DOWN or event.key == pygame.K_s:
             #         player1.move("down", grid, maze_col, player_col)
 
+
         if not move and not over : win=True
            
         if not over and not win:
+            # # moving enemies
+            # v=1 #sets direction of motion
+
+            # for enemy,cells in enemies.items() :
+            #     # print(enemy.x, enemy.y, cells)
+            #     loc_now=enemy.location(grid)
+            #     if loc_now==cells[0] :
+            #         enemy.move(cells[1],maze_col, enemy_col)
+            #         print("moved from 0 to 1")
+            #         v=1
+            #     elif loc_now==cells[2] :
+            #         enemy.move(cells[1],maze_col, enemy_col)
+            #         print("moved from 2 to 1")
+            #         v=-1
+            #     elif loc_now==cells[1] :
+            #         if v==1: 
+            #             enemy.move(cells[2],maze_col, enemy_col)
+            #             print("moved from 1 to 2")
+            #         else:
+            #             enemy.move(cells[0],maze_col, enemy_col)
+            #             print("moved from 1 to 0")
+
             # displaying time and instructions
             screen.fill(sidebar_col,(maze_width,0,(screen_width-maze_width),screen_height))
             time_elapsed=(pygame.time.get_ticks()-start_ticks)//1000
