@@ -3,7 +3,7 @@ from maze import *
 
 pygame.init()
 
-screen=pygame.display.set_mode((screen_width, screen_height))
+# screen=pygame.display.set_mode((screen_width, screen_height))
 
 class Enemy:
     # everything other than move function will be same as player class
@@ -25,7 +25,39 @@ class Enemy:
         if rect1 != rect2:
             screen.fill(maze_col, rect1)
             pygame.draw.rect(screen, enemy_col, rect2)
+            pygame.time.delay(50)
 
 
-        
-            
+    def set_enemies(enemy_size, maze1, solution_path):
+        try:
+            grid=maze1.grid_cells
+            enemies=dict()
+            for i in range(2):
+                rand_cell=grid[random.randint(0,len(grid)-1)][random.randint(0,len(grid)-1)]
+                while rand_cell in solution_path:
+                    rand_cell=grid[random.randint(0,len(grid)-1)][random.randint(0,len(grid)-1)]
+                rx,ry,w,t=rand_cell.x, rand_cell.y, rand_cell.width, rand_cell.thickness
+                enemy1 = Enemy(rx+t, ry+t, enemy_size)
+
+                loc=grid[ry//w][rx//w]
+                close_neighbours=maze1.check_neighbours_by_walls(loc,grid,grid[0][0])
+                for nr in close_neighbours:
+                    if nr in solution_path:
+                        close_neighbours.remove(nr)
+                far_neighbours={nr : maze1.check_neighbours_by_walls(nr,grid,loc) for nr in close_neighbours}
+                for nr_key in far_neighbours.keys():
+                    for nr in far_neighbours[nr_key]:
+                        if nr in solution_path:
+                            far_neighbours[nr_key].remove(nr)
+
+                cell1=loc
+                cell2=random.choice(close_neighbours)
+                cell3=random.choice(far_neighbours[cell2])
+                
+                cells=[cell1, cell2, cell3]
+                enemies[enemy1]=cells
+            return enemies
+        except: 
+            print("calling set_enemies again")
+            return Enemy.set_enemies(enemy_size, maze1, solution_path)
+                

@@ -5,9 +5,9 @@ from maze import *
 pygame.init()
 
 # screen_width, screen_height=1080,720 (since we are importing from maze this line is not required)
-screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("Let's make a game!")
-clock=pygame.time.Clock()
+# screen = pygame.display.set_mode((screen_width, screen_height))
+# pygame.display.set_caption("Let's make a game!")
+# clock=pygame.time.Clock()
 
 
 class Player:

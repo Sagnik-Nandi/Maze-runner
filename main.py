@@ -3,12 +3,13 @@ from maze import *
 from player import *
 from enemy import *
 from buttons import *
+from objects import *
 
 # initializes pygame module!!
 pygame.init()
 
 # important variables
-screen_col=(200,25,0) #red
+screen_col=(0,0,0) #black
 maze_col=(0,50,0) #dark green
 player_col=(200,0,0) #red
 enemy_col=(150,0,150) #dark blue
@@ -20,7 +21,7 @@ maze_width=720
 # IF you change this then make sure to change it over all files!! (@"v")
 # or if you change it to say 800,800 then change the factors which decide cellsize, playersize etc.
 
-font = pygame.font.SysFont('Lucida Calligraphy', 36)
+font = pygame.font.SysFont('Pipe Dream', 36)
 
 # opening the game window
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -52,7 +53,7 @@ def menu():
     
     started=False
     while not started :
-        welcome=font.render("Hello Player, Welcome to Maze Runner",True, text_col)
+        welcome=font.render("Hello Player, Welcome to Maze Runner",False, text_col)
         screen.blit(welcome, ((screen_width-welcome.get_width())//2, screen_height//6))
         start_btn.draw_button()
         options_btn.draw_button()
@@ -98,10 +99,10 @@ def menu():
                         if mute.clicked :
                             if mute.text=="Stop music":
                                 pygame.mixer.music.pause()
-                                mute.text="Resume music"
+                                mute.text="Play music"
                                 screen.fill(screen_col)
                                 mute.draw_button()
-                            elif mute.text=="Resume music":
+                            elif mute.text=="Play music":
                                 pygame.mixer.music.unpause()
                                 mute.text="Stop music"
                                 screen.fill(screen_col)
@@ -140,7 +141,7 @@ def menu():
                 quit()
             if easy.clicked :
                 level=1
-                timer=15
+                timer=2
                 cell_size=screen_width//12
                 cell_wall_thickness=cell_size//5
                 player_size=screen_width//18 
@@ -148,7 +149,7 @@ def menu():
 
             if medium.clicked :
                 level=2
-                timer=20
+                timer=2
                 cell_size=screen_width//16
                 cell_wall_thickness=cell_size//5
                 player_size=screen_width//24
@@ -156,7 +157,7 @@ def menu():
 
             if hard.clicked :
                 level=3
-                timer=30
+                timer=2
                 cell_size=screen_width//18
                 cell_wall_thickness=cell_size//5
                 player_size=screen_width//27
@@ -164,7 +165,7 @@ def menu():
 
 def setup(menu_required=True):
     # print("setup called")
-    global maze1, grid, player1, player_rect, enemies
+    global maze1, grid, player1, player_rect, enemies, traps
     # global level, cell_size, cell_wall_thickness, player1 # became global from previous function
     if menu_required :
         menu()
@@ -189,39 +190,11 @@ def setup(menu_required=True):
 
     # screen.blit(main_screen,(0,0))
 
+    # Creating objects
+    traps=Trap.set_traps(player_size, maze1, solution_path)
+
     # Creating enemy
-    enemies=dict()
-    for i in range(2):
-        rand_cell=grid[random.randint(0,len(grid)-1)][random.randint(0,len(grid)-1)]
-        while rand_cell in solution_path:
-            rand_cell=grid[random.randint(0,len(grid)-1)][random.randint(0,len(grid)-1)]
-        rx,ry,w,t=rand_cell.x, rand_cell.y, rand_cell.width, rand_cell.thickness
-        enemy1 = Enemy(rx+t, ry+t, player_size)
-
-        loc=grid[ry//w][rx//w]
-        close_neighbours=maze1.check_neighbours_by_walls(loc,grid,grid[0][0])
-        # for nr in close_neighbours:
-        #     if nr in solution_path:
-        #         close_neighbours.remove(nr)
-        far_neighbours={nr : maze1.check_neighbours_by_walls(nr,grid,loc) for nr in close_neighbours}
-        # for nr_key in far_neighbours.keys():
-        #     for nr in far_neighbours[nr_key]:
-        #         if nr in solution_path:
-        #             far_neighbours[nr_key].remove(nr)
-
-        cell1=loc
-        cell2=random.choice(close_neighbours)
-        if far_neighbours[cell2]:
-            cell3=random.choice(far_neighbours[cell2])
-        else :      #just one level check for IndexError: can't choose from empty sequence
-            cell2=random.choice(close_neighbours)
-            cell3=random.choice(far_neighbours[cell2]) 
-
-        cells=[cell1, cell2, cell3]
-        # for i in range(len(cells)):
-        #     print("final range of cells",cells[i].x, cells[i].y)
-        
-        enemies[enemy1]=cells
+    enemies=Enemy.set_enemies(player_size, maze1, solution_path)
 
     # Creating player
     player1 = Player(x1+cell_wall_thickness,y1+cell_wall_thickness,player_size)
@@ -248,7 +221,7 @@ def gameloop():
     win=False
     move=True
     while True:
-        clock.tick(10) #sets frames per second(FPS)
+        clock.tick(10) #sets frames per second(FPS) ...dunno why but menu btn is glitching at high fps
         # pygame.time.delay(100) #this is required for moving with keys unless those keys are seen as an event
         
         
@@ -265,7 +238,6 @@ def gameloop():
             
         if (keys[pygame.K_DOWN] or keys[pygame.K_s]) :
             move=player1.move("down", grid, maze_col, player_col)
-
 
         # # Setting up the camera
         # global player_rect
@@ -302,27 +274,39 @@ def gameloop():
         if not move and not over : win=True
            
         if not over and not win:
-            # moving enemies
+            # moving enemies and checkking collision with player
             # v sets direction of motion
 
             for enemy,cells in enemies.items() :
                 # print(enemy.x, enemy.y, cells)
+                loc_p=player1.location(grid)
                 loc_now=enemy.location(grid)
                 if loc_now==cells[0] :
+                    if loc_p==loc_now:
+                        over=True
                     enemy.move(cells[1],maze_col, enemy_col)
                     # print("moved from 0 to 1")
                     v=1
                 elif loc_now==cells[2] :
+                    if loc_p==loc_now:
+                        over=True
                     enemy.move(cells[1],maze_col, enemy_col)
                     # print("moved from 2 to 1")
                     v=-1
                 elif loc_now==cells[1] :
+                    if loc_p==loc_now:
+                        over=True
                     if v==1: 
                         enemy.move(cells[2],maze_col, enemy_col)
                         # print("moved from 1 to 2")
                     else:
                         enemy.move(cells[0],maze_col, enemy_col)
                         # print("moved from 1 to 0")
+                
+            # checking for objects interaction with player
+            for trap in traps:
+                if player1.location(grid)==trap.location(grid):
+                    over=True
 
             # displaying time and instructions
             screen.fill(sidebar_col,(maze_width,0,(screen_width-maze_width),screen_height))
@@ -334,7 +318,8 @@ def gameloop():
             line2=font.render("Or WASD",True,text_col)
             line3=font.render("To move",True,text_col)
             line4=font.render("Time remaining",True,text_col)
-            time_display=font.render(f"{minutes:02}:{seconds:02}",True,text_col)
+            time_col=(125,25,0) if time_remaining<=10 else text_col
+            time_display=font.render(f"{minutes:02}:{seconds:02}",True,time_col) 
             lines=[line1,line2, line3, line4, time_display]
             for i in range(len(lines)):
                 posx=(maze_width+screen_width-lines[i].get_width())//2
