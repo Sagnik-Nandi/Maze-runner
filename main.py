@@ -24,6 +24,7 @@ font = pygame.font.SysFont('Lucida Calligraphy', 36)
 
 # opening the game window
 screen = pygame.display.set_mode((screen_width, screen_height))
+main_screen = pygame.Surface((screen_width, screen_height))
 pygame.display.set_caption("Let's make a game!")
 
 clock=pygame.time.Clock()
@@ -163,7 +164,7 @@ def menu():
 
 def setup(menu_required=True):
     # print("setup called")
-    global maze1, grid, player1, enemies
+    global maze1, grid, player1, player_rect, enemies
     # global level, cell_size, cell_wall_thickness, player1 # became global from previous function
     if menu_required :
         menu()
@@ -172,39 +173,63 @@ def setup(menu_required=True):
     screen.fill(maze_col,(0,0,maze_width,screen_height))
     maze1=Maze(maze_width, screen_height, cell_size, cell_wall_thickness)
     grid=maze1.generate_maze(level)
-    # path=maze1.generate_solution()
+    solution_path, directed_path=maze1.generate_solution()
+    # for p in solution_path :
+    #     print(p)
+    #     new_rect=pygame.Rect(p.x+p.thickness,p.y+p.thickness,player_size, player_size)
+    #     pygame.draw.rect(screen,(125,50,0),new_rect)
+    #     pygame.display.update()
     # print(path)
+
     first_cell=grid[0][0]
     x1, y1 = first_cell.x, first_cell.y
     for row in grid:
         for cell in row:
-            cell.draw_walls()
+            cell.draw_walls(main_screen,maze_col)
+
+    # screen.blit(main_screen,(0,0))
 
     # Creating enemy
     enemies=dict()
     for i in range(2):
         rand_cell=grid[random.randint(0,len(grid)-1)][random.randint(0,len(grid)-1)]
-        if rand_cell==grid[0][0]:
+        while rand_cell in solution_path:
             rand_cell=grid[random.randint(0,len(grid)-1)][random.randint(0,len(grid)-1)]
         rx,ry,w,t=rand_cell.x, rand_cell.y, rand_cell.width, rand_cell.thickness
         enemy1 = Enemy(rx+t, ry+t, player_size)
 
         loc=grid[ry//w][rx//w]
         close_neighbours=maze1.check_neighbours_by_walls(loc,grid,grid[0][0])
+        # for nr in close_neighbours:
+        #     if nr in solution_path:
+        #         close_neighbours.remove(nr)
         far_neighbours={nr : maze1.check_neighbours_by_walls(nr,grid,loc) for nr in close_neighbours}
-        
+        # for nr_key in far_neighbours.keys():
+        #     for nr in far_neighbours[nr_key]:
+        #         if nr in solution_path:
+        #             far_neighbours[nr_key].remove(nr)
+
         cell1=loc
         cell2=random.choice(close_neighbours)
-        cell3=random.choice(far_neighbours[cell2])
+        if far_neighbours[cell2]:
+            cell3=random.choice(far_neighbours[cell2])
+        else :      #just one level check for IndexError: can't choose from empty sequence
+            cell2=random.choice(close_neighbours)
+            cell3=random.choice(far_neighbours[cell2]) 
+
         cells=[cell1, cell2, cell3]
-        for i in range(len(cells)):
-            print("final range of cells",cells[i].x, cells[i].y)
+        # for i in range(len(cells)):
+        #     print("final range of cells",cells[i].x, cells[i].y)
         
         enemies[enemy1]=cells
 
     # Creating player
     player1 = Player(x1+cell_wall_thickness,y1+cell_wall_thickness,player_size)
     Player.draw(player1, player_col)
+
+    # Creating subsurface
+    player_rect=pygame.rect.Rect(0,0,maze_width//2, screen_height//2)
+    
 
 
 
@@ -241,6 +266,20 @@ def gameloop():
         if (keys[pygame.K_DOWN] or keys[pygame.K_s]) :
             move=player1.move("down", grid, maze_col, player_col)
 
+
+        # # Setting up the camera
+        # global player_rect
+        # if player_rect.centerx<player1.x:
+        #     player_rect.centerx=player1.x
+        # if player_rect.centery<player1.y:
+        #     player_rect.centery=player1.y
+
+        # viewport_rect=pygame.Rect(0,0,screen_width//2, screen_height//2)
+        # viewport_rect.center=player_rect.center
+        # camera=screen.subsurface(viewport_rect)
+        # camera.unlock()
+        # screen.blit(camera, player_rect.topleft)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT: #for closing window (otherwise won't close)
                 pygame.quit()
@@ -263,27 +302,27 @@ def gameloop():
         if not move and not over : win=True
            
         if not over and not win:
-            # # moving enemies
-            # v=1 #sets direction of motion
+            # moving enemies
+            # v sets direction of motion
 
-            # for enemy,cells in enemies.items() :
-            #     # print(enemy.x, enemy.y, cells)
-            #     loc_now=enemy.location(grid)
-            #     if loc_now==cells[0] :
-            #         enemy.move(cells[1],maze_col, enemy_col)
-            #         print("moved from 0 to 1")
-            #         v=1
-            #     elif loc_now==cells[2] :
-            #         enemy.move(cells[1],maze_col, enemy_col)
-            #         print("moved from 2 to 1")
-            #         v=-1
-            #     elif loc_now==cells[1] :
-            #         if v==1: 
-            #             enemy.move(cells[2],maze_col, enemy_col)
-            #             print("moved from 1 to 2")
-            #         else:
-            #             enemy.move(cells[0],maze_col, enemy_col)
-            #             print("moved from 1 to 0")
+            for enemy,cells in enemies.items() :
+                # print(enemy.x, enemy.y, cells)
+                loc_now=enemy.location(grid)
+                if loc_now==cells[0] :
+                    enemy.move(cells[1],maze_col, enemy_col)
+                    # print("moved from 0 to 1")
+                    v=1
+                elif loc_now==cells[2] :
+                    enemy.move(cells[1],maze_col, enemy_col)
+                    # print("moved from 2 to 1")
+                    v=-1
+                elif loc_now==cells[1] :
+                    if v==1: 
+                        enemy.move(cells[2],maze_col, enemy_col)
+                        # print("moved from 1 to 2")
+                    else:
+                        enemy.move(cells[0],maze_col, enemy_col)
+                        # print("moved from 1 to 0")
 
             # displaying time and instructions
             screen.fill(sidebar_col,(maze_width,0,(screen_width-maze_width),screen_height))

@@ -5,7 +5,9 @@ import random
 pygame.init()
 
 screen_width, screen_height=1080,720
+maze_width=720
 screen = pygame.display.set_mode((screen_width, screen_height))
+# screen1 = pygame.Surface((screen_width, screen_height))
 pygame.display.set_caption("Let's make a game!")
 clock=pygame.time.Clock()
 
@@ -20,9 +22,14 @@ class Cell:
         self.visited=False
         self.walls={'Up':True, 'Down':True, 'Left':True, 'Right':True}
 
+    def __str__(self) :
+        return str((self.x,self.y))
+        
+
     #draws walls around a cell
-    def draw_walls(self):
+    def draw_walls(self,screen1,maze_col):
         w,x,y=self.width, self.x, self.y
+        screen1.fill(maze_col,(0,0,maze_width,screen_height))
         # print("draw_walls is called")
         if self.walls['Up']:
             pygame.draw.line(screen,self.color, (x,y),(x+w,y), self.thickness)
@@ -179,24 +186,25 @@ class Maze:
         stack=[self.grid_cells[0][0]]
         n=len(self.grid_cells)
 
-        while stack :
-            c=stack.pop()
+        while stack : # stack is a record for the unvisited cells
+            c=stack.pop() # last element in stack
             if c.x+c.y==2*(n-1) : #goal found
                 break
             if c not in visited :
                 visited.add(c)
-                neighbours=self.check_neighbours_by_walls(c)
+                neighbours=self.check_neighbours_by_walls(c, self.grid_cells)
                 for nr in neighbours :
                     if nr not in visited :
                         stack.append(nr)
                         path[nr]=c 
                         # path dictionary stores parent cell of each neighbour..so that it can backtrace via path to reach start
-                
+            # elif c visited, do nothing  
+              
         # reconstructing the path
-        solution_path=[]
-        solution_path_proper=[]
         c=self.grid_cells[n-1][n-1]
         d=c #just initializing
+        solution_path=[]
+        solution_path_proper=[c]
         while c != self.grid_cells[0][0] :
             d=path[c] # d is the parent 
             solution_path_proper.append(d)
@@ -211,7 +219,9 @@ class Maze:
                 # recall we will actually backtrack
             c=d 
             # updating current cell
-        solution_path_proper.append(self.grid_cells[0][0]) 
-        solution_path_proper.reverse()
 
-        return solution_path
+        solution_path_proper.append(d) 
+        solution_path_proper.reverse()
+        solution_path.reverse()
+
+        return solution_path_proper,solution_path
