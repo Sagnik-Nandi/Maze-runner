@@ -25,14 +25,13 @@ class Enemy:
         if rect1 != rect2:
             screen.fill(maze_col, rect1)
             pygame.draw.rect(screen, enemy_col, rect2)
-            pygame.time.delay(50)
 
 
-    def set_enemies(enemy_size, maze1, solution_path):
+    def set_enemies(n, enemy_size, maze1, solution_path):
         try:
             grid=maze1.grid_cells
             enemies=dict()
-            for i in range(2):
+            for i in range(n):
                 rand_cell=grid[random.randint(0,len(grid)-1)][random.randint(0,len(grid)-1)]
                 while rand_cell in solution_path:
                     rand_cell=grid[random.randint(0,len(grid)-1)][random.randint(0,len(grid)-1)]
@@ -53,11 +52,11 @@ class Enemy:
                 cell1=loc
                 cell2=random.choice(close_neighbours)
                 cell3=random.choice(far_neighbours[cell2])
-                
+
                 cells=[cell1, cell2, cell3]
                 enemies[enemy1]=cells
             return enemies
         except: 
             print("calling set_enemies again")
-            return Enemy.set_enemies(enemy_size, maze1, solution_path)
+            return Enemy.set_enemies(n, enemy_size, maze1, solution_path)
                 

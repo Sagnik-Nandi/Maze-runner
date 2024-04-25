@@ -9,7 +9,7 @@ button_width, button_height=screen_width//4, screen_height//20
 button_x, button_y=(screen_width-button_width)//2, screen_height//6
 screen=pygame.display.set_mode((screen_width, screen_height))
 
-font_btn=pygame.font.SysFont('Lucida Calligraphy', 24, italic=True)
+font_btn=pygame.font.SysFont('AwmU Slant Demo', 36)
 
 #Class for buttons
 class Buttons:
@@ -22,8 +22,8 @@ class Buttons:
     #the usual constructor
     def __init__(self, index, text):
         self.text=text
-        self.index=int(index)
-        self.rect=pygame.Rect(button_x, button_y*self.index , button_width, button_height)
+        self.index=index
+        self.rect=pygame.Rect(button_x, int(button_y*self.index) , button_width, button_height)
         self.clicked=False
 
     #drawing the button rectangle
@@ -49,7 +49,7 @@ class Buttons:
         text=font_btn.render(self.text,True,self.text_col)
         text_width=text.get_width()
         text_height=text.get_height()
-        screen.blit(text, (button_x + (button_width-text_width)//2 , button_y*self.index + (button_height-text_height)//2))
+        screen.blit(text, (button_x + (button_width-text_width)//2 , int(button_y*self.index) + (button_height-text_height)//2))
 
         pygame.display.update()
         

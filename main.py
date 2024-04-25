@@ -9,7 +9,7 @@ from objects import *
 pygame.init()
 
 # important variables
-screen_col=(0,0,0) #black
+screen_col=(5,5,5) #black
 maze_col=(0,50,0) #dark green
 player_col=(200,0,0) #red
 enemy_col=(150,0,150) #dark blue
@@ -21,7 +21,7 @@ maze_width=720
 # IF you change this then make sure to change it over all files!! (@"v")
 # or if you change it to say 800,800 then change the factors which decide cellsize, playersize etc.
 
-font = pygame.font.SysFont('Pipe Dream', 36)
+font = pygame.font.SysFont('Pipe Dream', 48)
 
 # opening the game window
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -141,7 +141,7 @@ def menu():
                 quit()
             if easy.clicked :
                 level=1
-                timer=2
+                timer=10
                 cell_size=screen_width//12
                 cell_wall_thickness=cell_size//5
                 player_size=screen_width//18 
@@ -149,7 +149,7 @@ def menu():
 
             if medium.clicked :
                 level=2
-                timer=2
+                timer=20
                 cell_size=screen_width//16
                 cell_wall_thickness=cell_size//5
                 player_size=screen_width//24
@@ -157,7 +157,7 @@ def menu():
 
             if hard.clicked :
                 level=3
-                timer=2
+                timer=25
                 cell_size=screen_width//18
                 cell_wall_thickness=cell_size//5
                 player_size=screen_width//27
@@ -165,7 +165,7 @@ def menu():
 
 def setup(menu_required=True):
     # print("setup called")
-    global maze1, grid, player1, player_rect, enemies, traps
+    global maze1, grid, player1, player_rect, enemies, traps, coins
     # global level, cell_size, cell_wall_thickness, player1 # became global from previous function
     if menu_required :
         menu()
@@ -191,10 +191,11 @@ def setup(menu_required=True):
     # screen.blit(main_screen,(0,0))
 
     # Creating objects
-    traps=Trap.set_traps(player_size, maze1, solution_path)
+    traps=Trap.set_traps(2*level, player_size, maze1, solution_path)
+    coins=Coin.set_coins(3*level, player_size, maze1, traps)
 
     # Creating enemy
-    enemies=Enemy.set_enemies(player_size, maze1, solution_path)
+    enemies=Enemy.set_enemies(2*level, player_size, maze1, solution_path)
 
     # Creating player
     player1 = Player(x1+cell_wall_thickness,y1+cell_wall_thickness,player_size)
@@ -212,12 +213,13 @@ def gameloop():
     pygame.time.set_timer(pygame.USEREVENT, timer*1000) # unit is milisecond
     start_ticks=pygame.time.get_ticks()
 
-    play_again=Buttons(4,"Play Again")
-    menu_btn=Buttons(5,"Menu")
+    play_again=Buttons(4.5,"Play Again")
+    menu_btn=Buttons(5.25,"Menu")
 
     # Main game loop
-    # pygame.key.set_repeat(200) #for repeating key action while keydown
     over=False
+    score=0
+    scored=False
     win=False
     move=True
     while True:
@@ -260,6 +262,7 @@ def gameloop():
                 # print("Userevent")
                 over=True
         
+            # use pygame.key.set_repeat(200) for repeating key action while keydown
             # if event.type == pygame.KEYDOWN :
             #     if event.key == pygame.K_LEFT or event.key == pygame.K_a:
             #         player1.move("left", grid, maze_col, player_col)
@@ -308,6 +311,15 @@ def gameloop():
                 if player1.location(grid)==trap.location(grid):
                     over=True
 
+            if scored==True:
+                scored=False
+
+            for coin in coins:
+                if player1.location(grid)==coin.location(grid) and not coin.used:
+                    coin.used=True
+                    score+=coin.value
+                    scored=True
+
             # displaying time and instructions
             screen.fill(sidebar_col,(maze_width,0,(screen_width-maze_width),screen_height))
             time_elapsed=(pygame.time.get_ticks()-start_ticks)//1000
@@ -317,13 +329,16 @@ def gameloop():
             line1=font.render("Use arrow keys",True,text_col)
             line2=font.render("Or WASD",True,text_col)
             line3=font.render("To move",True,text_col)
-            line4=font.render("Time remaining",True,text_col)
-            time_col=(125,25,0) if time_remaining<=10 else text_col
+            line4=font.render("Scores", True, text_col)
+            score_col=(0,250,0) if scored else (0,150,0)
+            line5=font.render(f"{score}", True, score_col)
+            line6=font.render("Time remaining",True,text_col)
+            time_col=(125,25,0) if time_remaining<=10 else (125,125,0)
             time_display=font.render(f"{minutes:02}:{seconds:02}",True,time_col) 
-            lines=[line1,line2, line3, line4, time_display]
+            lines=[line1, line2, line3, line4, line5, line6, time_display]
             for i in range(len(lines)):
                 posx=(maze_width+screen_width-lines[i].get_width())//2
-                posy=(i+1)*screen_height//8 if i<3 else (i+2)*screen_height//8
+                posy=(i+1)*screen_height//9 if i<3 else (i+2)*screen_height//9
                 screen.blit(lines[i],(posx,posy))
             # screen.blit(time_display,(screen_width-time_display.get_width(),0))
         else:    
@@ -333,14 +348,18 @@ def gameloop():
                 # screen.blit(gameover, ((screen_width-gameover.get_width())//2, screen_height//3))
                 image=pygame.image.load("./Images/Game over.png")
                 image=pygame.transform.scale(image, (screen_width//2, screen_height//2))
-                screen.blit(image, (screen_width//4, screen_height//8))
+                screen.blit(image, (screen_width//4, screen_height//12))
            
             else: 
                 # print("you won")
-                image=pygame.image.load("./Images/You win!.webp")
+                image=pygame.image.load("./Images/You win!.webp").convert_alpha()
                 image=pygame.transform.scale(image, (screen_width//2, screen_height//2))
-                screen.blit(image, (screen_width//4, screen_height//8))
+                screen.blit(image, (screen_width//4, screen_height//12))
             
+            # Display score
+            score_display=font.render(f"You scored {score}", True, text_col)
+            screen.blit(score_display, ((screen_width-score_display.get_width())//2, 7*screen_height//12))
+
             # Play again and menu button
             play_again.draw_button()
             menu_btn.draw_button()
