@@ -27,17 +27,34 @@ class Cell:
         
 
     #draws walls around a cell
-    def draw_walls(self,maze_col):
-        w,x,y=self.width, self.x, self.y
+    def draw_walls(self):
+        w,x,y,t=self.width, self.x, self.y, self.thickness
         # print("draw_walls is called")
+        # if self.walls['Up']:
+        #     pygame.draw.line(maze_screen,self.color, (x,y),(x+w,y), self.thickness)
+        # if self.walls['Down']:
+        #     pygame.draw.line(maze_screen,self.color, (x,y+w),(x+w,y+w), self.thickness)
+        # if self.walls['Left']:
+        #     pygame.draw.line(maze_screen,self.color, (x,y),(x,y+w), self.thickness)
+        # if self.walls['Right']:
+        #     pygame.draw.line(maze_screen,self.color, (x+w,y),(x+w,y+w), self.thickness)
+
+        up_wall=pygame.image.load("./Images/wall_horizontal_com.png")
+        up_wall=pygame.transform.scale(up_wall, (w, t))
+        left_wall=pygame.image.load("./Images/wall_vertical_com.png")
+        left_wall=pygame.transform.scale(left_wall, (t, w))
+        tile=pygame.image.load("./Images/grass_tile_com.png")
+        tile=pygame.transform.scale(tile, (w, w))
+
+        maze_screen.blit(tile, (x,y))
         if self.walls['Up']:
-            pygame.draw.line(maze_screen,self.color, (x,y),(x+w,y), self.thickness)
+            maze_screen.blit(up_wall, (x, y))
         if self.walls['Down']:
-            pygame.draw.line(maze_screen,self.color, (x,y+w),(x+w,y+w), self.thickness)
+            maze_screen.blit(up_wall, (x, y+w-t))
         if self.walls['Left']:
-            pygame.draw.line(maze_screen,self.color, (x,y),(x,y+w), self.thickness)
+            maze_screen.blit(left_wall, (x, y))
         if self.walls['Right']:
-            pygame.draw.line(maze_screen,self.color, (x+w,y),(x+w,y+w), self.thickness)
+            maze_screen.blit(left_wall, (x+w-t, y))
         pygame.display.update()
 
     #checks top, bottom, left, right for unvisited cell and returns cell with coordinates of unvisited cells otherwise False
@@ -113,7 +130,7 @@ class Maze:
             elif array:                     #all neighbours visited
                 current_cell = array.pop()
         
-        # to drop some random walls based on level of difficulty
+        # to drop some random walls based on level of difficulty (╯⇀◡↼）╯︵ ┻━┻
         drop=(3-level)
         for i in range(0,drop*length):
             j=i//drop

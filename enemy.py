@@ -11,20 +11,26 @@ class Enemy:
         self.x, self.y=x,y
         self.width=size
         self.height=size
+        # image=pygame.image.load("./Image/ghost_enemy_com.png")
+        # self.image=pygame.transform.scale(image, (self.width, self.height))
 
     def location(self, grid):
         w=grid[0][0].width
         return grid[self.y//w][self.x//w]
     
     def move(self, tocell, maze_col, enemy_col):
+        tile=pygame.image.load("./Images/grass_tile_com.png")
+        tile=pygame.transform.scale(tile, (self.width, self.width))
         rect1=pygame.Rect(self.x, self.y, self.width, self.height)
         t=tocell.thickness 
         self.x, self.y=tocell.x+t, tocell.y+t
         rect2=pygame.Rect(self.x, self.y, self.width, self.height)
 
         if rect1 != rect2:
-            maze_screen.fill(maze_col, rect1)
-            pygame.draw.rect(maze_screen, enemy_col, rect2)
+            # maze_screen.fill(maze_col, rect1)
+            maze_screen.blit(tile, (rect1.x, rect1.y))
+        pygame.draw.rect(maze_screen, enemy_col, rect2)
+        # maze_screen.blit(self.image, (self.x, self.y))
 
 
     def set_enemies(n, enemy_size, maze1, solution_path):

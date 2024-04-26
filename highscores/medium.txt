@@ -1,0 +1,6 @@
+This file stores 5 highest scores
+55,Saguboy
+50,SagNIk
+45,Saguboy
+45,Swagnik
+35,Saguboy

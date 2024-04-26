@@ -15,30 +15,13 @@ class Player:
         self.x, self.y = x, y
         self.width=size
         self.height=size
+        image=pygame.image.load("./Images/hero_player_com.png")
+        self.image=pygame.transform.scale(image, (self.width, self.height))
 
     # draws player rectangle
     def draw(self, player_col):
-        pygame.draw.rect(maze_screen,player_col, (self.x, self.y, self.width, self.height))
-
-        
-        #create a rectangle so that part of the screen is visible to the player
-        #...cannot create in any way
-
-        # rect=pygame.Rect(0,0,screen_width//2, screen_height//2)
-        # if self.x>rect.centerx :
-        #     rect.centerx=self.x
-        # if self.y>rect.centery :
-        #     rect.centery=self.y
-        # pygame.draw.rect(screen,(0,255,0), rect, 2)
-
-        # pygame.display.update()
-
-        # rect_surface=pygame.Surface((rect.width, rect.height))
-        # screen.blit(rect_surface, rect.topleft)
-        # screen_copy=pygame.Surface.copy(screen)
-        # screen_black=screen.fill((0,0,0))
-        # screen.blit(screen_black, rect)
-
+        # pygame.draw.rect(maze_screen,player_col, (self.x, self.y, self.width, self.height))
+        maze_screen.blit(self.image, (self.x,self.y))
 
     # check current cell of the player
     def location(self, grid):
@@ -51,7 +34,8 @@ class Player:
         
         rect1=pygame.Rect(self.x, self.y, self.width, self.height)
         loc=self.location(grid)
-
+        tile=pygame.image.load("./Images/grass_tile_com.png")
+        tile=pygame.transform.scale(tile, (self.width, self.width))
         step=grid[0][0].width
 
         # check if player has reached goal
@@ -71,7 +55,8 @@ class Player:
 
             self.draw(player_col)
             if rect1 != rect2 : 
-                maze_screen.fill(maze_col, rect1) #fills old rectangle with black to create moving effect instead of dragging 
+                # maze_screen.fill(maze_col, rect1) #fills old rectangle with black to create moving effect instead of dragging 
+                maze_screen.blit(tile, (rect1.x, rect1.y))
     
             return True
         # new_rect=pygame.Rect(self.x, self.y, self.width, self.height)

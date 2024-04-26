@@ -4,6 +4,7 @@ from player import *
 from enemy import *
 from buttons import *
 from objects import *
+from highscore import *
 
 # initializes pygame module!!
 pygame.init()
@@ -14,6 +15,7 @@ maze_col=(0,50,0) #dark green
 player_col=(200,0,0) #red
 enemy_col=(150,0,150) #dark blue
 text_col=(200,200,200) #white
+enter_col=(75,75,75) #grey
 sidebar_col=(25,100,225) #violet 
 
 screen_width, screen_height=1080,720
@@ -39,8 +41,46 @@ pygame.mixer.music.load(f"./Music/theme_{music_index}.mp3")
 pygame.mixer.music.play(-1)
 
 
+# User name entry
+def enter():
+    screen.fill(screen_col)
+    global user_name
 
-#creating buttons and menu at the start of game
+    enter_msg=font.render("Hello Player, Welcome to Maze Runner",True, text_col)
+    name_msg=font.render("Please enter your name", True, text_col)
+    enter_btn=Buttons(4, "Enter")
+    user_name=""
+
+    entered=False
+    while not entered:
+        screen.blit(enter_msg, ((screen_width-enter_msg.get_width())//2, screen_height//6))
+        if len(user_name)==0: screen.blit(name_msg, ((screen_width-name_msg.get_width())//2, 2*screen_height//6)) 
+        enter_btn.draw_button()
+
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT:
+                pygame.quit()
+                quit()
+            if enter_btn.clicked and len(user_name):
+                entered=True
+            if event.type==pygame.KEYDOWN:
+                if event.key==pygame.K_BACKSPACE and len(user_name):
+                    user_name=user_name[:-1]
+                elif event.key==pygame.K_RETURN and len(user_name):
+                    entered=True
+                else:
+                    user_name+=event.unicode
+            if entered:
+                break
+        
+        name_box=pygame.draw.rect(screen, enter_col, ((screen_width-name_msg.get_width())//2, screen_height//2, name_msg.get_width(), screen_height//10))
+        name_text=font.render(user_name, True, text_col)
+        screen.blit(name_text, ((screen_width-name_text.get_width())//2, name_box.top+name_box.h//6))
+        pygame.display.update()
+
+
+
+# Creating buttons and menu at the start of game
 def menu():
     # print("menu function is called")
     screen.fill(screen_col)
@@ -49,11 +89,12 @@ def menu():
     quit_btn=Buttons(4, "Quit ?")
     change_music=Buttons(2,"Change music")
     mute=Buttons(3,"Stop music")
-    back=Buttons(4,"Back")
+    leaderboard=Buttons(4, "Leaderboard")
+    back=Buttons(5,"Back")
     
     started=False
     while not started :
-        welcome=font.render("Hello Player, Welcome to Maze Runner",False, text_col)
+        welcome=font.render(f"Hello {user_name}, Ready for an Adventure?",True, text_col)
         screen.blit(welcome, ((screen_width-welcome.get_width())//2, screen_height//6))
         start_btn.draw_button()
         options_btn.draw_button()
@@ -67,8 +108,8 @@ def menu():
                 pygame.quit()
                 quit()
             if options_btn.clicked :
-                #very buggy performance (T^T )
-                #finally mila bug \(^v^)/
+                #very buggy performance 乁( ͡ಥᨓ ͡ಥ)ㄏ
+                #finally mila bug \(^v^)/ 
                 selected=False      
                 screen.fill(screen_col)
                 while not selected:
@@ -133,6 +174,7 @@ def menu():
         hard.draw_button()
         pygame.display.update()
 
+        # defining them global to access them from other functions also
         global level, timer, cell_size, cell_wall_thickness, player_size, visibility
 
         for event in pygame.event.get():
@@ -166,14 +208,16 @@ def menu():
                 player_size=maze_width//18
                 level_chosen=True
 
+
+# Loading maze and other elements
 def setup(menu_required=True):
     # print("setup called")
+    # defining them global to access them from other functions also
     global maze1, grid, player1, player_rect, enemies, traps, coins
-    # global level, cell_size, cell_wall_thickness, player1 # became global from previous function
     if menu_required :
         menu()
     
-    # Setting up the maze
+    # Setting up the maze and generating its solution path
     maze_screen.fill(maze_col,(0,0,maze_width,screen_height))
     maze1=Maze(maze_width, screen_height, cell_size, cell_wall_thickness)
     grid=maze1.generate_maze(level)
@@ -189,7 +233,7 @@ def setup(menu_required=True):
     x1, y1 = first_cell.x, first_cell.y
     for row in grid:
         for cell in row:
-            cell.draw_walls(maze_col)
+            cell.draw_walls()
 
     screen.blit(maze_screen, (0,0))
 
@@ -222,13 +266,14 @@ def gameloop():
     play_again=Buttons(4.5,"Play Again")
     menu_btn=Buttons(5.25,"Menu")
 
-    # Main game loop
+    # Main game loop 
     over=False
     score=0
     scored=False
     win=False
     move=True
-    while True:
+    updated=False
+    while True: 
         clock.tick(10) #sets frames per second(FPS) ...dunno why but menu btn is glitching at high fps
         # pygame.time.delay(100) #this is required for moving with keys unless those keys are seen as an event
         
@@ -316,14 +361,10 @@ def gameloop():
                     # print("moved from 0 to 1")
                     v=1
                 elif loc_now==cells[2] :
-                    # if loc_p==loc_now:
-                    #     over=True
                     enemy.move(cells[1],maze_col, enemy_col)
                     # print("moved from 2 to 1")
                     v=-1
                 elif loc_now==cells[1] :
-                    # if loc_p==loc_now:
-                    #     over=True
                     if v==1: 
                         enemy.move(cells[2],maze_col, enemy_col)
                         # print("moved from 1 to 2")
@@ -387,12 +428,16 @@ def gameloop():
             score_display=font.render(f"You scored {score}", True, text_col)
             screen.blit(score_display, ((screen_width-score_display.get_width())//2, 7*screen_height//12))
 
+            if not updated:
+                update_hiscore(user_name, score, level)
+                updated=True
+
             # Play again and menu button
             play_again.draw_button()
             menu_btn.draw_button()
             if play_again.clicked :
                 # over=False
-                # play_again.clicked=False #they might be unnecessary because each time a new function is called sonvariables are redefined from scratch
+                # play_again.clicked=False #they might be unnecessary because each time a new function is called so variables are redefined from scratch
                 setup(menu_required=False)
                 gameloop()
             if menu_btn.clicked :
@@ -404,6 +449,7 @@ def gameloop():
         pygame.display.update()
         
 
-# Calling the real function (@*v*)
+# Calling the real function ヽ(^ ε ^)ﾉ
+enter()
 setup()
 gameloop()
