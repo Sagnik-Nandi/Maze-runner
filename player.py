@@ -18,7 +18,7 @@ class Player:
 
     # draws player rectangle
     def draw(self, player_col):
-        pygame.draw.rect(screen,player_col, (self.x, self.y, self.width, self.height))
+        pygame.draw.rect(maze_screen,player_col, (self.x, self.y, self.width, self.height))
 
         
         #create a rectangle so that part of the screen is visible to the player
@@ -71,7 +71,7 @@ class Player:
 
             self.draw(player_col)
             if rect1 != rect2 : 
-                screen.fill(maze_col, rect1) #fills old rectangle with black to create moving effect instead of dragging 
+                maze_screen.fill(maze_col, rect1) #fills old rectangle with black to create moving effect instead of dragging 
     
             return True
         # new_rect=pygame.Rect(self.x, self.y, self.width, self.height)

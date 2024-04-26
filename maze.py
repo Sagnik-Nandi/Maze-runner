@@ -6,8 +6,8 @@ pygame.init()
 
 screen_width, screen_height=1080,720
 maze_width=720
-screen = pygame.display.set_mode((screen_width, screen_height))
-# screen1 = pygame.Surface((screen_width, screen_height))
+# screen = pygame.display.set_mode((screen_width, screen_height))
+maze_screen = pygame.Surface((screen_width, screen_height))
 pygame.display.set_caption("Let's make a game!")
 clock=pygame.time.Clock()
 
@@ -15,7 +15,7 @@ clock=pygame.time.Clock()
 class Cell:
     #constructor for class cell (also note: __*__ makes * a public attribute.. by default any attribute is private)
     def __init__(self, x, y, width, thickness, color=(225,225,25)): 
-        self.x, self.y = x, y       #components of a cell
+        self.x, self.y = x, y       
         self.width=width
         self.thickness=thickness
         self.color=color
@@ -27,18 +27,17 @@ class Cell:
         
 
     #draws walls around a cell
-    def draw_walls(self,screen1,maze_col):
+    def draw_walls(self,maze_col):
         w,x,y=self.width, self.x, self.y
-        screen1.fill(maze_col,(0,0,maze_width,screen_height))
         # print("draw_walls is called")
         if self.walls['Up']:
-            pygame.draw.line(screen,self.color, (x,y),(x+w,y), self.thickness)
+            pygame.draw.line(maze_screen,self.color, (x,y),(x+w,y), self.thickness)
         if self.walls['Down']:
-            pygame.draw.line(screen,self.color, (x,y+w),(x+w,y+w), self.thickness)
+            pygame.draw.line(maze_screen,self.color, (x,y+w),(x+w,y+w), self.thickness)
         if self.walls['Left']:
-            pygame.draw.line(screen,self.color, (x,y),(x,y+w), self.thickness)
+            pygame.draw.line(maze_screen,self.color, (x,y),(x,y+w), self.thickness)
         if self.walls['Right']:
-            pygame.draw.line(screen,self.color, (x+w,y),(x+w,y+w), self.thickness)
+            pygame.draw.line(maze_screen,self.color, (x+w,y),(x+w,y+w), self.thickness)
         pygame.display.update()
 
     #checks top, bottom, left, right for unvisited cell and returns cell with coordinates of unvisited cells otherwise False

@@ -23,8 +23,8 @@ class Enemy:
         rect2=pygame.Rect(self.x, self.y, self.width, self.height)
 
         if rect1 != rect2:
-            screen.fill(maze_col, rect1)
-            pygame.draw.rect(screen, enemy_col, rect2)
+            maze_screen.fill(maze_col, rect1)
+            pygame.draw.rect(maze_screen, enemy_col, rect2)
 
 
     def set_enemies(n, enemy_size, maze1, solution_path):

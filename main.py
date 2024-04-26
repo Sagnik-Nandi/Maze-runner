@@ -25,7 +25,7 @@ font = pygame.font.SysFont('Pipe Dream', 48)
 
 # opening the game window
 screen = pygame.display.set_mode((screen_width, screen_height))
-main_screen = pygame.Surface((screen_width, screen_height))
+# main_screen = pygame.Surface((screen_width, screen_height))
 pygame.display.set_caption("Let's make a game!")
 
 clock=pygame.time.Clock()
@@ -133,7 +133,7 @@ def menu():
         hard.draw_button()
         pygame.display.update()
 
-        global level, timer, cell_size, cell_wall_thickness, player_size
+        global level, timer, cell_size, cell_wall_thickness, player_size, visibility
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT :
@@ -141,26 +141,29 @@ def menu():
                 quit()
             if easy.clicked :
                 level=1
-                timer=10
-                cell_size=screen_width//12
+                timer=20
+                visibility=2/3
+                cell_size=maze_width//8
                 cell_wall_thickness=cell_size//5
-                player_size=screen_width//18 
+                player_size=maze_width//12
                 level_chosen=True
 
             if medium.clicked :
                 level=2
-                timer=20
-                cell_size=screen_width//16
+                timer=30
+                visibility=3/5
+                cell_size=maze_width//10
                 cell_wall_thickness=cell_size//5
-                player_size=screen_width//24
+                player_size=maze_width//15
                 level_chosen=True
 
             if hard.clicked :
                 level=3
-                timer=25
-                cell_size=screen_width//18
+                timer=45
+                visibility=1/2
+                cell_size=maze_width//12
                 cell_wall_thickness=cell_size//5
-                player_size=screen_width//27
+                player_size=maze_width//18
                 level_chosen=True
 
 def setup(menu_required=True):
@@ -171,7 +174,7 @@ def setup(menu_required=True):
         menu()
     
     # Setting up the maze
-    screen.fill(maze_col,(0,0,maze_width,screen_height))
+    maze_screen.fill(maze_col,(0,0,maze_width,screen_height))
     maze1=Maze(maze_width, screen_height, cell_size, cell_wall_thickness)
     grid=maze1.generate_maze(level)
     solution_path, directed_path=maze1.generate_solution()
@@ -180,15 +183,15 @@ def setup(menu_required=True):
     #     new_rect=pygame.Rect(p.x+p.thickness,p.y+p.thickness,player_size, player_size)
     #     pygame.draw.rect(screen,(125,50,0),new_rect)
     #     pygame.display.update()
-    # print(path)
+    print(directed_path)
 
     first_cell=grid[0][0]
     x1, y1 = first_cell.x, first_cell.y
     for row in grid:
         for cell in row:
-            cell.draw_walls(main_screen,maze_col)
+            cell.draw_walls(maze_col)
 
-    # screen.blit(main_screen,(0,0))
+    screen.blit(maze_screen, (0,0))
 
     # Creating objects
     traps=Trap.set_traps(2*level, player_size, maze1, solution_path)
@@ -202,8 +205,11 @@ def setup(menu_required=True):
     Player.draw(player1, player_col)
 
     # Creating subsurface
-    player_rect=pygame.rect.Rect(0,0,maze_width//2, screen_height//2)
-    
+    v_width, v_height=int(maze_width*visibility), int(screen_height*visibility)
+    player_rect=pygame.Rect(0,0,v_width, v_height)
+    half_screen=maze_screen.subsurface(player_rect)
+    screen.blit(half_screen, player_rect.topleft)
+
 
 
 
@@ -226,7 +232,35 @@ def gameloop():
         clock.tick(10) #sets frames per second(FPS) ...dunno why but menu btn is glitching at high fps
         # pygame.time.delay(100) #this is required for moving with keys unless those keys are seen as an event
         
-        
+        screen.fill((0,0,0), (0,0,maze_width, screen_height))
+
+        # Setting up the camera ......finally !!! (ง⩾◡⩽)ง
+        if player_rect.centerx>player1.x:
+            if player1.x>player_rect.w//2:
+                player_rect.centerx=player1.x
+            else:
+                player_rect.left=0
+        if player_rect.centerx<player1.x:
+            if player1.x<maze_width-(player_rect.w//2):
+                player_rect.centerx=player1.x
+            else:
+                player_rect.right=maze_width
+        if player_rect.centery>player1.y:
+            if player1.y>player_rect.h//2:
+                player_rect.centery=player1.y    
+            else:
+                player_rect.top=0
+        if player_rect.centery<player1.y:
+            if player1.y<screen_height-(player_rect.h//2):
+                player_rect.centery=player1.y
+            else:
+                player_rect.bottom=screen_height
+
+        half_screen=maze_screen.subsurface(player_rect)
+        screen.blit(half_screen, player_rect.topleft)
+
+
+        # Keyboard inputs for navigating player
         keys = pygame.key.get_pressed() #returns an array
 
         if (keys[pygame.K_LEFT] or keys[pygame.K_a]) :
@@ -241,19 +275,8 @@ def gameloop():
         if (keys[pygame.K_DOWN] or keys[pygame.K_s]) :
             move=player1.move("down", grid, maze_col, player_col)
 
-        # # Setting up the camera
-        # global player_rect
-        # if player_rect.centerx<player1.x:
-        #     player_rect.centerx=player1.x
-        # if player_rect.centery<player1.y:
-        #     player_rect.centery=player1.y
 
-        # viewport_rect=pygame.Rect(0,0,screen_width//2, screen_height//2)
-        # viewport_rect.center=player_rect.center
-        # camera=screen.subsurface(viewport_rect)
-        # camera.unlock()
-        # screen.blit(camera, player_rect.topleft)
-
+        # Checking for events like timeover or quit
         for event in pygame.event.get():
             if event.type == pygame.QUIT: #for closing window (otherwise won't close)
                 pygame.quit()
@@ -261,6 +284,7 @@ def gameloop():
             if event.type == pygame.USEREVENT : 
                 # print("Userevent")
                 over=True
+                print("time out")
         
             # use pygame.key.set_repeat(200) for repeating key action while keydown
             # if event.type == pygame.KEYDOWN :
@@ -284,21 +308,22 @@ def gameloop():
                 # print(enemy.x, enemy.y, cells)
                 loc_p=player1.location(grid)
                 loc_now=enemy.location(grid)
+                if loc_p==loc_now:
+                    over=True
+                    print("hit an enemy")
                 if loc_now==cells[0] :
-                    if loc_p==loc_now:
-                        over=True
                     enemy.move(cells[1],maze_col, enemy_col)
                     # print("moved from 0 to 1")
                     v=1
                 elif loc_now==cells[2] :
-                    if loc_p==loc_now:
-                        over=True
+                    # if loc_p==loc_now:
+                    #     over=True
                     enemy.move(cells[1],maze_col, enemy_col)
                     # print("moved from 2 to 1")
                     v=-1
                 elif loc_now==cells[1] :
-                    if loc_p==loc_now:
-                        over=True
+                    # if loc_p==loc_now:
+                    #     over=True
                     if v==1: 
                         enemy.move(cells[2],maze_col, enemy_col)
                         # print("moved from 1 to 2")
@@ -310,6 +335,7 @@ def gameloop():
             for trap in traps:
                 if player1.location(grid)==trap.location(grid):
                     over=True
+                    print("hit a trap")
 
             if scored==True:
                 scored=False
@@ -320,7 +346,7 @@ def gameloop():
                     score+=coin.value
                     scored=True
 
-            # displaying time and instructions
+            # displaying time, score and instructions
             screen.fill(sidebar_col,(maze_width,0,(screen_width-maze_width),screen_height))
             time_elapsed=(pygame.time.get_ticks()-start_ticks)//1000
             time_remaining=timer-time_elapsed
@@ -330,17 +356,18 @@ def gameloop():
             line2=font.render("Or WASD",True,text_col)
             line3=font.render("To move",True,text_col)
             line4=font.render("Scores", True, text_col)
-            score_col=(0,250,0) if scored else (0,150,0)
+            score_col=(0,250,0) if scored else (0,200,0)
             line5=font.render(f"{score}", True, score_col)
             line6=font.render("Time remaining",True,text_col)
             time_col=(125,25,0) if time_remaining<=10 else (125,125,0)
             time_display=font.render(f"{minutes:02}:{seconds:02}",True,time_col) 
-            lines=[line1, line2, line3, line4, line5, line6, time_display]
+            lines=[line1, line2, line3, line4, line5, line6, time_display] 
             for i in range(len(lines)):
                 posx=(maze_width+screen_width-lines[i].get_width())//2
                 posy=(i+1)*screen_height//9 if i<3 else (i+2)*screen_height//9
                 screen.blit(lines[i],(posx,posy))
-            # screen.blit(time_display,(screen_width-time_display.get_width(),0))
+
+        # Gameover or you win screen
         else:    
             screen.fill(screen_col)
             if over and not win:

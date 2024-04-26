@@ -30,7 +30,7 @@ class Trap:
                 rand_cell=grid[random.randint(0,len(grid)-1)][random.randint(0,len(grid)-1)]
             rx,ry,w,t=rand_cell.x, rand_cell.y, rand_cell.width, rand_cell.thickness
             trap1=Trap(rx+t, ry+t, trap_size)
-            pygame.draw.rect(screen, trap_col, trap1.rect)
+            pygame.draw.rect(maze_screen, trap_col, trap1.rect)
             traps.append(trap1)
         return traps
             
@@ -56,7 +56,7 @@ class Coin:
             # coin_col=coin_5_col if v==5 else coin_10_col
             coin1=Coin(rx+t, ry+t, coin_size,v)
             coins.append(coin1)
-            pygame.draw.rect(screen, coin_col, coin1.rect)
+            pygame.draw.rect(maze_screen, coin_col, coin1.rect)
     
         # Bonus coins ...trap ke samne
         m=len(traps)
@@ -67,6 +67,6 @@ class Coin:
             v=random.randint(1,2)*5
             coin1=Coin(rx+t, ry+t, coin_size,v)
             coins.append(coin1)
-            pygame.draw.rect(screen, coin_col, coin1.rect)
+            pygame.draw.rect(maze_screen, coin_col, coin1.rect)
 
         return coins
