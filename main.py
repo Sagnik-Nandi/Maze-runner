@@ -1,4 +1,5 @@
 import pygame
+import argparse
 from maze import *
 from player import *
 from enemy import *
@@ -32,13 +33,49 @@ pygame.display.set_caption("Let's make a game!")
 
 clock=pygame.time.Clock()
 
-
 # plays music 
 total_music=2
 music_index=1
 pygame.mixer.init()
 pygame.mixer.music.load(f"./Music/theme_{music_index}.mp3")
 pygame.mixer.music.play(-1)
+
+
+# Loading images for player, enemies, tiles, walls and sorting them based on theme
+green_tile=pygame.image.load("./Images/grass_tile_com.png")
+green_upper_wall=pygame.image.load("./Images/wall_horizontal_com.png")
+green_side_wall=pygame.image.load("./Images/wall_vertical_com.png")
+forest_trap=pygame.image.load("./Images/mystery_forest_trap_com.png")
+forest_enemy=pygame.image.load("./Images/forest_enemy_com.png")
+forest=[green_tile, green_upper_wall, green_side_wall, forest_enemy, forest_trap]
+
+snow_tile=pygame.image.load("./Images/snow_tile_com.png")
+ice_upper_wall=pygame.image.load("./Images/ice_wall_hori_com.png")
+ice_side_wall=pygame.image.load("./Images/ice_wall_vert_com.png")
+ice_enemy=pygame.image.load("./Images/ice_enemy_com.png")
+ice_trap_upper=pygame.image.load("./Images/ice_trap_upper_com.png")
+ice_trap_lower=pygame.image.load("./Images/ice_trap_lower_com.png")
+snow=[snow_tile, ice_upper_wall, ice_side_wall, ice_enemy, ice_trap_upper, ice_trap_lower]
+
+stone_tile=pygame.image.load("./Images/stone_tile_com.png")
+stone_upper_wall=pygame.image.load("./Images/stone_wall_hori_com.png")
+stone_side_wall=pygame.image.load("./Images/stone_wall_vert_com.png")
+dungeon_enemy=pygame.image.load("./Images/dungeon_enemy_com.png")
+lava_trap=pygame.image.load("./Images/lava_trap_com.png")
+dungeon=[stone_tile, stone_upper_wall, stone_side_wall, dungeon_enemy, lava_trap]
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--theme",type=str,required=False)
+args = parser.parse_args()
+print(args.theme)
+theme=forest
+if args.theme=="snow":
+    theme=snow
+if args.theme=="forest":
+    theme=forest
+if args.theme=="dungeon":
+    theme=dungeon    
+
 
 
 # User name entry
@@ -64,12 +101,15 @@ def enter():
             if enter_btn.clicked and len(user_name):
                 entered=True
             if event.type==pygame.KEYDOWN:
-                if event.key==pygame.K_BACKSPACE and len(user_name):
-                    user_name=user_name[:-1]
-                elif event.key==pygame.K_RETURN and len(user_name):
-                    entered=True
+                if event.key==pygame.K_BACKSPACE :
+                    if len(user_name):
+                        user_name=user_name[:-1]
+                elif event.key==pygame.K_RETURN :
+                    if len(user_name):
+                        entered=True
                 else:
-                    user_name+=event.unicode
+                    if len(user_name)<18:
+                        user_name+=event.unicode
             if entered:
                 break
         
@@ -250,6 +290,7 @@ def setup(menu_required=True):
     
     # Setting up the maze and generating its solution path
     maze_screen.fill(maze_col,(0,0,maze_width,screen_height))
+    tile,up_wall,side_wall=theme[0], theme[1], theme[2]
     maze1=Maze(maze_width, screen_height, cell_size, cell_wall_thickness)
     grid=maze1.generate_maze(level)
     solution_path, directed_path=maze1.generate_solution()
@@ -264,16 +305,17 @@ def setup(menu_required=True):
     x1, y1 = first_cell.x, first_cell.y
     for row in grid:
         for cell in row:
-            cell.draw_walls()
+            cell.draw_walls(tile, up_wall, side_wall)
 
     screen.blit(maze_screen, (0,0))
 
     # Creating objects
+    # trap_theme=theme[-2:] if theme==snow else theme[-1]
     traps=Trap.set_traps(2*level, player_size, maze1, solution_path)
-    coins=Coin.set_coins(3*level, player_size, maze1, traps)
+    coins=Coin.set_coins(3*level, player_size//2, maze1, traps)
 
     # Creating enemy
-    enemies=Enemy.set_enemies(2*level, player_size, maze1, solution_path)
+    enemies=Enemy.set_enemies(2*level, player_size, maze1, solution_path, theme[3])
 
     # Creating player
     player1 = Player(x1+cell_wall_thickness,y1+cell_wall_thickness,player_size)
@@ -303,6 +345,7 @@ def gameloop():
     scored=False
     win=False
     move=True
+    enemy_v=1
     updated=False
     while True: 
         clock.tick(10) #sets frames per second(FPS) ...dunno why but menu btn is glitching at high fps
@@ -340,16 +383,16 @@ def gameloop():
         keys = pygame.key.get_pressed() #returns an array
 
         if (keys[pygame.K_LEFT] or keys[pygame.K_a]) :
-            move=player1.move("left", grid, maze_col, player_col)
+            move=player1.move("left", grid, maze_col, player_col, theme[0])
             
         if (keys[pygame.K_RIGHT] or keys[pygame.K_d]) :
-            move=player1.move("right", grid, maze_col, player_col)
+            move=player1.move("right", grid, maze_col, player_col, theme[0])
             
         if (keys[pygame.K_UP] or keys[pygame.K_w]) :
-            move=player1.move("up", grid, maze_col, player_col)
+            move=player1.move("up", grid, maze_col, player_col, theme[0])
             
         if (keys[pygame.K_DOWN] or keys[pygame.K_s]) :
-            move=player1.move("down", grid, maze_col, player_col)
+            move=player1.move("down", grid, maze_col, player_col, theme[0])
 
 
         # Checking for events like timeover or quit
@@ -387,21 +430,22 @@ def gameloop():
                 if loc_p==loc_now:
                     over=True
                     print("hit an enemy")
-                if loc_now==cells[0] :
-                    enemy.move(cells[1],maze_col, enemy_col)
+                if enemy_v==1 and loc_now==cells[0] :
+                    enemy.move(cells[1],maze_col, enemy_col, theme[0])
                     # print("moved from 0 to 1")
                     v=1
-                elif loc_now==cells[2] :
-                    enemy.move(cells[1],maze_col, enemy_col)
+                elif enemy_v==1 and loc_now==cells[2] :
+                    enemy.move(cells[1],maze_col, enemy_col, theme[0])
                     # print("moved from 2 to 1")
                     v=-1
-                elif loc_now==cells[1] :
+                elif enemy_v==1 and loc_now==cells[1] :
                     if v==1: 
-                        enemy.move(cells[2],maze_col, enemy_col)
+                        enemy.move(cells[2],maze_col, enemy_col, theme[0])
                         # print("moved from 1 to 2")
                     else:
-                        enemy.move(cells[0],maze_col, enemy_col)
+                        enemy.move(cells[0],maze_col, enemy_col, theme[0])
                         # print("moved from 1 to 0")
+            enemy_v=enemy_v%3+1 # controls speed of enemy
                 
             # checking for objects interaction with player
             for trap in traps:
@@ -480,7 +524,7 @@ def gameloop():
         pygame.display.update()
         
 
-# Calling the real function ヽ(^ ε ^)ﾉ
+# Calling the real functions ヽ(^ ε ^)ﾉ
 enter()
 setup()
 gameloop()

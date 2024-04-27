@@ -27,7 +27,7 @@ class Cell:
         
 
     #draws walls around a cell
-    def draw_walls(self):
+    def draw_walls(self, tile, up_wall, left_wall):
         w,x,y,t=self.width, self.x, self.y, self.thickness
         # print("draw_walls is called")
         # if self.walls['Up']:
@@ -39,11 +39,11 @@ class Cell:
         # if self.walls['Right']:
         #     pygame.draw.line(maze_screen,self.color, (x+w,y),(x+w,y+w), self.thickness)
 
-        up_wall=pygame.image.load("./Images/wall_horizontal_com.png")
+        # up_wall=pygame.image.load("./Images/wall_horizontal_com.png")
+        # left_wall=pygame.image.load("./Images/wall_vertical_com.png")
+        # tile=pygame.image.load("./Images/grass_tile_com.png")
         up_wall=pygame.transform.scale(up_wall, (w, t))
-        left_wall=pygame.image.load("./Images/wall_vertical_com.png")
         left_wall=pygame.transform.scale(left_wall, (t, w))
-        tile=pygame.image.load("./Images/grass_tile_com.png")
         tile=pygame.transform.scale(tile, (w, w))
 
         maze_screen.blit(tile, (x,y))

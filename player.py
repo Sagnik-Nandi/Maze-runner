@@ -15,13 +15,19 @@ class Player:
         self.x, self.y = x, y
         self.width=size
         self.height=size
-        image=pygame.image.load("./Images/hero_player_com.png")
-        self.image=pygame.transform.scale(image, (self.width, self.height))
+        image_left=pygame.image.load("./Images/hero_player_com.png")
+        image_right=pygame.image.load("./Images/hero_player_com1.png")
+        self.image_left=pygame.transform.scale(image_left, (self.width, self.height))
+        self.image_right=pygame.transform.scale(image_right, (self.width, self.height))
+        self.facing="right"
 
     # draws player rectangle
     def draw(self, player_col):
         # pygame.draw.rect(maze_screen,player_col, (self.x, self.y, self.width, self.height))
-        maze_screen.blit(self.image, (self.x,self.y))
+        if self.facing=="left":
+            maze_screen.blit(self.image_left, (self.x,self.y))
+        else:
+            maze_screen.blit(self.image_right, (self.x,self.y))
 
     # check current cell of the player
     def location(self, grid):
@@ -30,11 +36,12 @@ class Player:
             
 
     # moves the player
-    def move(self,event,grid,maze_col, player_col):
+    def move(self,event,grid,maze_col, player_col, tile):
         
         rect1=pygame.Rect(self.x, self.y, self.width, self.height)
+        facing1=self.facing
         loc=self.location(grid)
-        tile=pygame.image.load("./Images/grass_tile_com.png")
+        # tile=pygame.image.load("./Images/grass_tile_com.png")
         tile=pygame.transform.scale(tile, (self.width, self.width))
         step=grid[0][0].width
 
@@ -53,8 +60,15 @@ class Player:
 
             rect2=pygame.Rect(self.x, self.y, self.width, self.height)
 
-            self.draw(player_col)
-            if rect1 != rect2 : 
+            if event=="left" or event=="down":
+                self.facing="left"
+                self.draw(player_col)
+            else:
+                self.facing="right"
+                self.draw(player_col)
+            facing2=self.facing
+
+            if rect1 != rect2 or facing1 != facing2: 
                 # maze_screen.fill(maze_col, rect1) #fills old rectangle with black to create moving effect instead of dragging 
                 maze_screen.blit(tile, (rect1.x, rect1.y))
     

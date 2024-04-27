@@ -12,10 +12,17 @@ trap_col=(225, 125, 0)
 coin_col=(125, 50, 0)
 # coin_10_col=(250,200,0)
 
+image1=pygame.image.load("./Images/Gold_2.png")
+image2=pygame.image.load("./Images/Silver_6.png")
+image3=pygame.image.load("./Images/spider_trap_com.png").convert()
+
 class Trap:
     def __init__(self, x, y, size):
         self.x, self.y=x, y
         self.rect=pygame.Rect(x, y, size, size)
+        global image3
+        image3=pygame.transform.scale(image3, (size, size))
+        self.image=image3
 
     def location(self, grid):
         w=grid[0][0].width
@@ -30,16 +37,22 @@ class Trap:
                 rand_cell=grid[random.randint(0,len(grid)-1)][random.randint(0,len(grid)-1)]
             rx,ry,w,t=rand_cell.x, rand_cell.y, rand_cell.width, rand_cell.thickness
             trap1=Trap(rx+t, ry+t, trap_size)
-            pygame.draw.rect(maze_screen, trap_col, trap1.rect)
             traps.append(trap1)
+            # pygame.draw.rect(maze_screen, trap_col, trap1.rect)
+            maze_screen.blit(trap1.image, (trap1.x, trap1.y))
         return traps
             
 class Coin:
     def __init__(self, x, y, size, value) :
         self.x, self.y=x,y
-        self.rect=pygame.Rect(x, y, size, size)
+        self.size=size
+        # self.rect=pygame.Rect(x, y, size, size)
         self.used=False
         self.value=value
+        global image1, image2
+        image1=pygame.transform.scale(image1, (size,size))
+        image2=pygame.transform.scale(image2, (size,size))
+        self.image=image1 if value==10 else image2
     
     def location(self, grid):
         w=grid[0][0].width
@@ -56,10 +69,10 @@ class Coin:
                 rand_cell=grid[random.randint(0,len(grid)-1)][random.randint(0,len(grid)-1)]
             rx,ry,w,t=rand_cell.x, rand_cell.y, rand_cell.width, rand_cell.thickness
             v=random.randint(1,2)*5
-            # coin_col=coin_5_col if v==5 else coin_10_col
             coin1=Coin(rx+t, ry+t, coin_size,v)
             coins.append(coin1)
-            pygame.draw.rect(maze_screen, coin_col, coin1.rect)
+            # pygame.draw.rect(maze_screen, coin_col, coin1.rect)
+            maze_screen.blit(coin1.image, (coin1.x+coin1.size//2, coin1.y+coin1.size//2))
     
         # Bonus coins ...trap ke samne
         m=len(traps)
@@ -70,6 +83,7 @@ class Coin:
             v=random.randint(1,2)*5
             coin1=Coin(rx+t, ry+t, coin_size,v)
             coins.append(coin1)
-            pygame.draw.rect(maze_screen, coin_col, coin1.rect)
+            # pygame.draw.rect(maze_screen, coin_col, coin1.rect)
+            maze_screen.blit(coin1.image, (coin1.x+coin1.size//2, coin1.y+coin1.size//2))
 
         return coins
