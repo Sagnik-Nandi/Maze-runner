@@ -57,7 +57,7 @@ def update_hiscore(user_name, score, level):
 
 
 def display_hiscore(level):
-    font=pygame.font.SysFont('AwmU Demo', 48)
+    font=pygame.font.SysFont('GAMERIA', 48)
     font2=pygame.font.SysFont('GAMERIA', 36)
     back=Buttons(5,"Back")
 
@@ -79,13 +79,16 @@ def display_hiscore(level):
         screen.fill((0,0,0))
         leaderboard=font.render("Leaderboard", True, (150,50,0))
         screen.blit(leaderboard, ((screen_width-leaderboard.get_width())//2, screen_height//6))
+        level_dis=font.render(f"{levels[level-1]}", True, (150,50,0))
+        screen.blit(level_dis, ((screen_width-level_dis.get_width())//2, 2*screen_height//6))
         i=1
         for users,scores in ranklist.items():
-            score_col=(255,255,0) if i==1 else (50,150,0)
+            score_col=(255,200,0) if i==1 else (50,250,0)
             name=font2.render(users, True, score_col) 
             screen.blit(name, (screen_width//6, (i+4)*screen_height//12))
             score=font2.render(scores, True, score_col)
             screen.blit(score, (4*screen_width//6, (i+4)*screen_height//12))
+            i=i+1
         back.draw_button()
 
         for event in pygame.event.get():
@@ -93,6 +96,7 @@ def display_hiscore(level):
                 pygame.quit()
                 quit()
             if back.clicked:
+                screen.fill((0,0,0))
                 display=False
 
         pygame.display.update()

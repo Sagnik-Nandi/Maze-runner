@@ -48,9 +48,12 @@ class Coin:
     def set_coins(n, coin_size, maze1, traps):
         coins=[]
         grid=maze1.grid_cells
+        traps_loc=[trap.location(grid) for trap in traps]
         # Free ke coins
         for i in range(n):
             rand_cell=grid[random.randint(0,len(grid)-1)][random.randint(0,len(grid)-1)]
+            while rand_cell in traps_loc:
+                rand_cell=grid[random.randint(0,len(grid)-1)][random.randint(0,len(grid)-1)]
             rx,ry,w,t=rand_cell.x, rand_cell.y, rand_cell.width, rand_cell.thickness
             v=random.randint(1,2)*5
             # coin_col=coin_5_col if v==5 else coin_10_col

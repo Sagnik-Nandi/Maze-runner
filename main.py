@@ -79,6 +79,28 @@ def enter():
         pygame.display.update()
 
 
+def quit_confirm():
+    screen.fill(screen_col)
+    # quit_screen=pygame.Surface((screen_width//2, screen_height//2))
+    ask=font.render("You really want to quit?", True, text_col)
+    screen.blit(ask, ((screen.get_width()-ask.get_width())//2, screen.get_height()//4))
+    yes_btn=Buttons(2.5, "Yes")
+    no_btn=Buttons(3.5, "No")
+
+    selected=False
+    while not selected:
+        yes_btn.draw_button()
+        no_btn.draw_button()
+        # screen.blit(quit_screen, (screen_width//4, screen_height//4))
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT or yes_btn.clicked:
+                pygame.quit()
+                quit()
+            if no_btn.clicked:
+                screen.fill(screen_col)
+                selected=True
+                no_btn.clicked=False
+
 
 # Creating buttons and menu at the start of game
 def menu():
@@ -91,6 +113,7 @@ def menu():
     mute=Buttons(3,"Stop music")
     leaderboard=Buttons(4, "Leaderboard")
     back=Buttons(5,"Back")
+    i=1
     
     started=False
     while not started :
@@ -100,13 +123,16 @@ def menu():
         options_btn.draw_button()
         quit_btn.draw_button()
         pygame.display.update()
-        # draw button needs to be inside loop as it detects the button click ...Oofff
+        # draw button needs to be inside loop as it detects the button click ...Oofff 
         # update is needed for rendering text 
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT or quit_btn.clicked :
+            if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+            if quit_btn.clicked:
+                quit_confirm()
+                quit_btn.clicked=False
             if options_btn.clicked :
                 #very buggy performance 乁( ͡ಥᨓ ͡ಥ)ㄏ
                 #finally mila bug \(^v^)/ 
@@ -117,6 +143,7 @@ def menu():
                     screen.blit(settings, ((screen_width-settings.get_width())//2, screen_height//6))
                     change_music.draw_button()
                     mute.draw_button()
+                    leaderboard.draw_button()
                     back.draw_button()
                     pygame.display.update()
                     # print("control at loop 3")
@@ -148,6 +175,10 @@ def menu():
                                 mute.text="Stop music"
                                 screen.fill(screen_col)
                                 mute.draw_button()
+                        if leaderboard.clicked:
+                            display_hiscore(i)
+                            leaderboard.clicked=False
+                            i=i%3+1
                         if back.clicked :
                             screen.fill(screen_col)
                             selected=True
@@ -402,7 +433,7 @@ def gameloop():
             line6=font.render("Time remaining",True,text_col)
             time_col=(125,25,0) if time_remaining<=10 else (125,125,0)
             time_display=font.render(f"{minutes:02}:{seconds:02}",True,time_col) 
-            lines=[line1, line2, line3, line4, line5, line6, time_display] 
+            lines=[line1, line2, line3, line4, line5, line6, time_display] # removed line4, line5
             for i in range(len(lines)):
                 posx=(maze_width+screen_width-lines[i].get_width())//2
                 posy=(i+1)*screen_height//9 if i<3 else (i+2)*screen_height//9

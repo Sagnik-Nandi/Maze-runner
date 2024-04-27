@@ -1,6 +1,6 @@
 This file stores 5 highest scores
-35,Sagnik
-35,Sagnik
-35,SagNIk
-35,Saggu
-30,Sagnik2
+45,Aged
+40,Aged
+40,Aged
+40,Sagaga
+40,Sagnk
