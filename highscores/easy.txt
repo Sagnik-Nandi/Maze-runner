@@ -1,6 +1,6 @@
 This file stores 5 highest scores
 45,Aged
 45,kshfg
+45,Player
 40,Aged
 40,Aged
-40,Sagaga

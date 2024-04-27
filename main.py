@@ -338,10 +338,12 @@ def gameloop():
     pygame.time.set_timer(pygame.USEREVENT, timer*1000) # unit is milisecond
     start_ticks=pygame.time.get_ticks()
 
+    health_bar=pygame.Rect(maze_width+(screen_width-maze_width)//8,screen_height//8,3*(screen_width-maze_width)//4, screen_height//12)
+    red_bar=pygame.Rect(health_bar.x, health_bar.y, health_bar.w, health_bar.h)
     play_again=Buttons(4.5,"Play Again")
     menu_btn=Buttons(5.25,"Menu")
 
-    # Main game loop 
+    # Main game loop annnnnnd some more variables
     score=0
     health=1
     enemy_v=1
@@ -424,8 +426,11 @@ def gameloop():
         if not move and not over : win=True
            
         if not over and not win:
-            if health==0:
+            if health<=0.1:
                 over=True
+            
+            # pygame.draw.rect(screen,(0,255,0), health_bar)
+            
             # moving enemies and checkking collision with player
             # v sets direction of motion
 
@@ -437,6 +442,7 @@ def gameloop():
                     # over=True
                     health-=0.2
                     print("hit an enemy")
+                    health_bar.w -= 2*red_bar.w//10
                 if enemy_v==1 and loc_now==cells[0] :
                     enemy.move(cells[1],maze_col, enemy_col, theme[0])
                     # print("moved from 0 to 1")
@@ -460,9 +466,10 @@ def gameloop():
                     # over=True
                     health-=0.1
                     print("hit a trap")
+                    health_bar.w -= red_bar.w//10
                 maze_screen.blit(trap.image, (trap.x, trap.y))
             player1.draw(player_col)
-            trap_t=trap_t%5+1
+            trap_t=trap_t%3+1 # checks duration of interaction
 
             # adding score
             if scored==True:
@@ -480,9 +487,9 @@ def gameloop():
             time_remaining=timer-time_elapsed
             minutes, seconds=time_remaining//60, time_remaining%60
 
-            line1=font.render("Use arrow keys",True,text_col)
-            line2=font.render("Or WASD",True,text_col)
-            line3=font.render("To move",True,text_col)
+            # line1=font.render("Use arrow keys",True,text_col)
+            # line2=font.render("Or WASD",True,text_col)
+            # line3=font.render("To move",True,text_col)
             line4=font.render("Scores", True, text_col)
             score_col=(0,250,0) if scored else (0,200,0)
             line5=font.render(f"{score}", True, score_col)
@@ -490,12 +497,14 @@ def gameloop():
             time_col=(125,25,0) if time_remaining<=10 else (125,125,0)
             line7=font.render(f"{minutes:02}:{seconds:02}",True,time_col) 
             line8=font.render(f"{health:.2f}", True, text_col)
-            lines=[line1, line2, line3, line4, line5, line6, line7, line8] # removed line4, line5
+            lines=[line4, line5, line6, line7, line8] # removed line1, line2, line3
             for i in range(len(lines)):
                 posx=(maze_width+screen_width-lines[i].get_width())//2
-                posy=(i+1)*screen_height//10 if i<3 else (i+2)*screen_height//10
+                # posy=(i+1)*screen_height//10 if i<3 else (i+2)*screen_height//10
+                posy=(i+5)*screen_height//10
                 screen.blit(lines[i],(posx,posy))
-
+            pygame.draw.rect(screen, (255,0,0), red_bar, border_radius=red_bar.h//2)
+            pygame.draw.rect(screen,(0,255,0), health_bar, border_radius=health_bar.h//2)
         # Gameover or you win screen
         else:    
             screen.fill(screen_col)

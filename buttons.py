@@ -27,7 +27,7 @@ class Buttons:
         self.clicked=False
 
     #drawing the button rectangle
-    def draw_button(self, surface=screen):
+    def draw_button(self):
         # pygame.draw.rect(screen, color, (self.x, self.y, self.width, self.height))
 
         #changing style of buttons with mouse activity
@@ -38,18 +38,18 @@ class Buttons:
             if pygame.mouse.get_pressed()[0]==1: #left click
                 self.clicked=True
                 # print(self.text,"was clicked")
-                pygame.draw.rect(surface, self.click_col, self.rect)
+                pygame.draw.rect(screen, self.click_col, self.rect)
             elif pygame.mouse.get_pressed()[0]==0 and self.clicked==True:
                 self.clicked=False
             else:
-                pygame.draw.rect(surface, self.hover_col, self.rect)
+                pygame.draw.rect(screen, self.hover_col, self.rect)
         else:
-            pygame.draw.rect(surface, self.button_col, self.rect)
+            pygame.draw.rect(screen, self.button_col, self.rect)
         
         text=font_btn.render(self.text,True,self.text_col)
         text_width=text.get_width()
         text_height=text.get_height()
-        surface.blit(text, (button_x + (button_width-text_width)//2 , int(button_y*self.index) + (button_height-text_height)//2))
+        screen.blit(text, (button_x + (button_width-text_width)//2 , int(button_y*self.index) + (button_height-text_height)//2))
 
         pygame.display.update()
         
