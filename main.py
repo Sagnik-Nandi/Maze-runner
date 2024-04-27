@@ -55,7 +55,7 @@ ice_side_wall=pygame.image.load("./Images/ice_wall_vert_com.png")
 ice_enemy=pygame.image.load("./Images/ice_enemy_com.png")
 ice_trap_upper=pygame.image.load("./Images/ice_trap_upper_com.png")
 ice_trap_lower=pygame.image.load("./Images/ice_trap_lower_com.png")
-snow=[snow_tile, ice_upper_wall, ice_side_wall, ice_enemy, ice_trap_upper, ice_trap_lower]
+snow=[snow_tile, ice_upper_wall, ice_side_wall, ice_enemy, ice_trap_lower]
 
 stone_tile=pygame.image.load("./Images/stone_tile_com.png")
 stone_upper_wall=pygame.image.load("./Images/stone_wall_hori_com.png")
@@ -67,7 +67,7 @@ dungeon=[stone_tile, stone_upper_wall, stone_side_wall, dungeon_enemy, lava_trap
 parser = argparse.ArgumentParser()
 parser.add_argument("--theme",type=str,required=False)
 args = parser.parse_args()
-print(args.theme)
+# print(args.theme)
 theme=forest
 if args.theme=="snow":
     theme=snow
@@ -81,18 +81,20 @@ if args.theme=="dungeon":
 # User name entry
 def enter():
     screen.fill(screen_col)
-    global user_name
+    global user_name, skipped
 
     enter_msg=font.render("Hello Player, Welcome to Maze Runner",True, text_col)
     name_msg=font.render("Please enter your name", True, text_col)
     enter_btn=Buttons(4, "Enter")
+    skip_btn=Buttons(5, "Skip")
     user_name=""
 
     entered=False
-    while not entered:
+    while not entered :
         screen.blit(enter_msg, ((screen_width-enter_msg.get_width())//2, screen_height//6))
         if len(user_name)==0: screen.blit(name_msg, ((screen_width-name_msg.get_width())//2, 2*screen_height//6)) 
         enter_btn.draw_button()
+        skip_btn.draw_button()
 
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
@@ -110,8 +112,9 @@ def enter():
                 else:
                     if len(user_name)<18:
                         user_name+=event.unicode
-            if entered:
-                break
+            if skip_btn.clicked:
+                user_name="Player"
+                entered=True
         
         name_box=pygame.draw.rect(screen, enter_col, ((screen_width-name_msg.get_width())//2, screen_height//2, name_msg.get_width(), screen_height//10))
         name_text=font.render(user_name, True, text_col)
@@ -254,7 +257,7 @@ def menu():
                 quit()
             if easy.clicked :
                 level=1
-                timer=20
+                timer=30
                 visibility=2/3
                 cell_size=maze_width//8
                 cell_wall_thickness=cell_size//5
@@ -263,7 +266,7 @@ def menu():
 
             if medium.clicked :
                 level=2
-                timer=30
+                timer=45
                 visibility=3/5
                 cell_size=maze_width//10
                 cell_wall_thickness=cell_size//5
@@ -272,7 +275,7 @@ def menu():
 
             if hard.clicked :
                 level=3
-                timer=45
+                timer=60
                 visibility=1/2
                 cell_size=maze_width//12
                 cell_wall_thickness=cell_size//5
@@ -310,8 +313,7 @@ def setup(menu_required=True):
     screen.blit(maze_screen, (0,0))
 
     # Creating objects
-    # trap_theme=theme[-2:] if theme==snow else theme[-1]
-    traps=Trap.set_traps(2*level, player_size, maze1, solution_path)
+    traps=Trap.set_traps(2*level, player_size, maze1, solution_path, theme[-1])
     coins=Coin.set_coins(3*level, player_size//2, maze1, traps)
 
     # Creating enemy
@@ -340,12 +342,14 @@ def gameloop():
     menu_btn=Buttons(5.25,"Menu")
 
     # Main game loop 
-    over=False
     score=0
+    health=1
+    enemy_v=1
+    trap_t=1
     scored=False
+    over=False
     win=False
     move=True
-    enemy_v=1
     updated=False
     while True: 
         clock.tick(10) #sets frames per second(FPS) ...dunno why but menu btn is glitching at high fps
@@ -420,6 +424,8 @@ def gameloop():
         if not move and not over : win=True
            
         if not over and not win:
+            if health==0:
+                over=True
             # moving enemies and checkking collision with player
             # v sets direction of motion
 
@@ -427,8 +433,9 @@ def gameloop():
                 # print(enemy.x, enemy.y, cells)
                 loc_p=player1.location(grid)
                 loc_now=enemy.location(grid)
-                if loc_p==loc_now:
-                    over=True
+                if enemy_v==1 and loc_p==loc_now:
+                    # over=True
+                    health-=0.2
                     print("hit an enemy")
                 if enemy_v==1 and loc_now==cells[0] :
                     enemy.move(cells[1],maze_col, enemy_col, theme[0])
@@ -449,10 +456,15 @@ def gameloop():
                 
             # checking for objects interaction with player
             for trap in traps:
-                if player1.location(grid)==trap.location(grid):
-                    over=True
+                if trap_t==1 and player1.location(grid)==trap.location(grid):
+                    # over=True
+                    health-=0.1
                     print("hit a trap")
+                maze_screen.blit(trap.image, (trap.x, trap.y))
+            player1.draw(player_col)
+            trap_t=trap_t%5+1
 
+            # adding score
             if scored==True:
                 scored=False
 
@@ -476,11 +488,12 @@ def gameloop():
             line5=font.render(f"{score}", True, score_col)
             line6=font.render("Time remaining",True,text_col)
             time_col=(125,25,0) if time_remaining<=10 else (125,125,0)
-            time_display=font.render(f"{minutes:02}:{seconds:02}",True,time_col) 
-            lines=[line1, line2, line3, line4, line5, line6, time_display] # removed line4, line5
+            line7=font.render(f"{minutes:02}:{seconds:02}",True,time_col) 
+            line8=font.render(f"{health:.2f}", True, text_col)
+            lines=[line1, line2, line3, line4, line5, line6, line7, line8] # removed line4, line5
             for i in range(len(lines)):
                 posx=(maze_width+screen_width-lines[i].get_width())//2
-                posy=(i+1)*screen_height//9 if i<3 else (i+2)*screen_height//9
+                posy=(i+1)*screen_height//10 if i<3 else (i+2)*screen_height//10
                 screen.blit(lines[i],(posx,posy))
 
         # Gameover or you win screen

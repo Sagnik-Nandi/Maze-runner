@@ -62,7 +62,8 @@ def display_hiscore(level):
     back=Buttons(5,"Back")
 
     levels=["easy", "medium", "hard"]
-    ranklist=dict()
+    users=[]
+    scores=[]
     file=open(f"./highscores/{levels[level-1]}.txt", "r")
     i=-1
     for line in file.readlines():
@@ -70,7 +71,8 @@ def display_hiscore(level):
             line1=line.split(",")
             score1=line1[0]
             user1=line1[1][:-1]
-            ranklist[user1]=score1
+            scores.append(score1)
+            users.append(user1)
         i=i+1
     file.close()
 
@@ -81,14 +83,12 @@ def display_hiscore(level):
         screen.blit(leaderboard, ((screen_width-leaderboard.get_width())//2, screen_height//6))
         level_dis=font.render(f"{levels[level-1]}", True, (150,50,0))
         screen.blit(level_dis, ((screen_width-level_dis.get_width())//2, 2*screen_height//6))
-        i=1
-        for users,scores in ranklist.items():
-            score_col=(255,200,0) if i==1 else (50,250,0)
-            name=font2.render(users, True, score_col) 
-            screen.blit(name, (screen_width//6, (i+4)*screen_height//12))
-            score=font2.render(scores, True, score_col)
-            screen.blit(score, (4*screen_width//6, (i+4)*screen_height//12))
-            i=i+1
+        for i in range(5):
+            score_col=(255,200,0) if i==0 else (50,250,0)
+            name=font2.render(users[i], True, score_col) 
+            screen.blit(name, (screen_width//6, (i+5)*screen_height//12))
+            score=font2.render(scores[i], True, score_col)
+            screen.blit(score, (4*screen_width//6, (i+5)*screen_height//12))
         back.draw_button()
 
         for event in pygame.event.get():

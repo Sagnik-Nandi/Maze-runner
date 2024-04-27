@@ -39,7 +39,7 @@ class Player:
     def move(self,event,grid,maze_col, player_col, tile):
         
         rect1=pygame.Rect(self.x, self.y, self.width, self.height)
-        facing1=self.facing
+        # facing1=self.facing
         loc=self.location(grid)
         # tile=pygame.image.load("./Images/grass_tile_com.png")
         tile=pygame.transform.scale(tile, (self.width, self.width))
@@ -66,9 +66,9 @@ class Player:
             else:
                 self.facing="right"
                 self.draw(player_col)
-            facing2=self.facing
+            # facing2=self.facing
 
-            if rect1 != rect2 or facing1 != facing2: 
+            if rect1 != rect2 : 
                 # maze_screen.fill(maze_col, rect1) #fills old rectangle with black to create moving effect instead of dragging 
                 maze_screen.blit(tile, (rect1.x, rect1.y))
     
