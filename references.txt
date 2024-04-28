@@ -16,6 +16,7 @@ https://www.youtube.com/watch?v=2iyx8_elcYg
 https://www.youtube.com/watch?v=jyrP0dDGqgY
 https://github.com/russs123/pygame_tutorials/tree/main/Button
 https://www.youtube.com/watch?v=Qdeb1iinNtk&list=PLX5fBCkxJmm3nAalPU6gGfRIFLlghRuYy&index=2
+https://www.youtube.com/watch?v=u7LPRqrzry8&t=32s
 
 GFG, stackoverflow, github and documentation
 https://www.pygame.org/docs/ref/display.html
@@ -24,7 +25,6 @@ https://www.pygame.org/docs/ref/key.html
 https://www.geeksforgeeks.org/pygame-surface/?ref=lbp
 https://stackoverflow.com/questions/50373036/convert-rectangle-to-surface-in-pygame
 https://stackoverflow.com/questions/30720665/countdown-timer-in-pygame
-https://github.com/JustinStitt/mario/blob/b12cb25ba0c0f0fde62cf87b3fcc2aeaef76af1f/src/Game.py
 
 Music credits
 theme_1
@@ -39,4 +39,10 @@ Creative Commons Attribution 4.0 International (CC BY 4.0)
 https://creativecommons.org/licenses/by/4.0/
  
  Font credits
- <div>Icons made from <a href="https://www.onlinewebfonts.com/icon">svg icons</a>is licensed by CC BY 4.0</div>
+ https://www.fontspace.com/pipe-dream-font-f13369
+ https://www.fontspace.com/awmu-font-f52231
+ https://www.onlinewebfonts.com/download/fff3d2124ad04517ca31f408072d469c
+
+ Image credits
+ www.craiyon.com
+ www.opengameart.org

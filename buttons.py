@@ -28,23 +28,20 @@ class Buttons:
 
     #drawing the button rectangle
     def draw_button(self):
-        # pygame.draw.rect(screen, color, (self.x, self.y, self.width, self.height))
 
         #changing style of buttons with mouse activity
         cursor=pygame.mouse.get_pos()
 
-        if self.rect.collidepoint(cursor):
-            # print("Mouse inside ", self)
+        if self.rect.collidepoint(cursor): # Mouse inside rect
             if pygame.mouse.get_pressed()[0]==1: #left click
                 self.clicked=True
-                # print(self.text,"was clicked")
                 pygame.draw.rect(screen, self.click_col, self.rect)
-            elif pygame.mouse.get_pressed()[0]==0 and self.clicked==True:
+            elif pygame.mouse.get_pressed()[0]==0 and self.clicked==True: #click removed
                 self.clicked=False
             else:
-                pygame.draw.rect(screen, self.hover_col, self.rect)
+                pygame.draw.rect(screen, self.hover_col, self.rect) #Mouse hovering, not clicked
         else:
-            pygame.draw.rect(screen, self.button_col, self.rect)
+            pygame.draw.rect(screen, self.button_col, self.rect) #Mouse not inside button
         
         text=font_btn.render(self.text,True,self.text_col)
         text_width=text.get_width()

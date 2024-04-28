@@ -4,11 +4,6 @@ from maze import *
 #initializes pygame module!!
 pygame.init()
 
-# screen_width, screen_height=1080,720 (since we are importing from maze this line is not required)
-# screen = pygame.display.set_mode((screen_width, screen_height))
-# pygame.display.set_caption("Let's make a game!")
-# clock=pygame.time.Clock()
-
 
 class Player:
     def __init__(self,x,y,size):
@@ -22,8 +17,7 @@ class Player:
         self.facing="right"
 
     # draws player rectangle
-    def draw(self, player_col):
-        # pygame.draw.rect(maze_screen,player_col, (self.x, self.y, self.width, self.height))
+    def draw(self):
         if self.facing=="left":
             maze_screen.blit(self.image_left, (self.x,self.y))
         else:
@@ -36,12 +30,10 @@ class Player:
             
 
     # moves the player
-    def move(self,event,grid,maze_col, player_col, tile):
+    def move(self,event,grid, tile):
         
         rect1=pygame.Rect(self.x, self.y, self.width, self.height)
-        # facing1=self.facing
         loc=self.location(grid)
-        # tile=pygame.image.load("./Images/grass_tile_com.png")
         tile=pygame.transform.scale(tile, (self.width, self.width))
         step=grid[0][0].width
 
@@ -62,19 +54,14 @@ class Player:
 
             if event=="left" or event=="down":
                 self.facing="left"
-                self.draw(player_col)
+                self.draw()
             else:
                 self.facing="right"
-                self.draw(player_col)
-            # facing2=self.facing
+                self.draw()
 
             if rect1 != rect2 : 
-                # maze_screen.fill(maze_col, rect1) #fills old rectangle with black to create moving effect instead of dragging 
                 maze_screen.blit(tile, (rect1.x, rect1.y))
     
             return True
-        # new_rect=pygame.Rect(self.x, self.y, self.width, self.height)
-        # print("Removed rect", rect.center)
-        # print("now rect at", new_rect.center)
 
 

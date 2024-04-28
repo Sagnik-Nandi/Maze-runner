@@ -6,7 +6,6 @@ pygame.init()
 
 screen_width, screen_height=1080,720
 maze_width=720
-# screen = pygame.display.set_mode((screen_width, screen_height))
 maze_screen = pygame.Surface((screen_width, screen_height))
 pygame.display.set_caption("Let's make a game!")
 clock=pygame.time.Clock()
@@ -29,19 +28,8 @@ class Cell:
     #draws walls around a cell
     def draw_walls(self, tile, up_wall, left_wall):
         w,x,y,t=self.width, self.x, self.y, self.thickness
-        # print("draw_walls is called")
-        # if self.walls['Up']:
-        #     pygame.draw.line(maze_screen,self.color, (x,y),(x+w,y), self.thickness)
-        # if self.walls['Down']:
-        #     pygame.draw.line(maze_screen,self.color, (x,y+w),(x+w,y+w), self.thickness)
-        # if self.walls['Left']:
-        #     pygame.draw.line(maze_screen,self.color, (x,y),(x,y+w), self.thickness)
-        # if self.walls['Right']:
-        #     pygame.draw.line(maze_screen,self.color, (x+w,y),(x+w,y+w), self.thickness)
-
-        # up_wall=pygame.image.load("./Images/wall_horizontal_com.png")
-        # left_wall=pygame.image.load("./Images/wall_vertical_com.png")
-        # tile=pygame.image.load("./Images/grass_tile_com.png")
+        
+        #scales the images a snecessary
         up_wall=pygame.transform.scale(up_wall, (w, t))
         left_wall=pygame.transform.scale(left_wall, (t, w))
         tile=pygame.transform.scale(tile, (w, w))
@@ -81,6 +69,8 @@ class Cell:
 
 
 class Maze:
+    # The ususal constructor
+    # It depends on the class cell also
     def __init__(self, xdim, ydim, width, thickness):
         self.xdim, self.ydim=xdim, ydim
         self.width=width
@@ -109,7 +99,6 @@ class Maze:
     #generates maze and returns a list/grid of cells
     #DFS algorithm is used with recursively backtracking the cells it has visited
     def generate_maze(self, level):
-        # print("Now generating maze")
         current_cell = self.grid_cells[0][0]
         array = []
         count = 1
@@ -124,8 +113,6 @@ class Maze:
                 count += 1
                 array.append(current_cell) #array keeps track of cells which are visited but its neighbours not fully explored
                 self.remove_walls(current_cell, next_cell)
-                # print(current_cell.walls)
-                # print(next_cell.walls)
                 current_cell = next_cell
             elif array:                     #all neighbours visited
                 current_cell = array.pop()
@@ -161,7 +148,6 @@ class Maze:
                 neighbouring_walls['Left']=False
                 continue
 
-            # self.generate_solution()
         return self.grid_cells
 
 
@@ -171,31 +157,26 @@ class Maze:
         walls=c.walls
         w,x,y=c.width,c.x,c.y
         neighbours=[]
-        # print("checking neighbours of", c.x, c.y)
-        if not walls["Up"] and y>=w:
+        if not walls["Up"] and y>=w: # if up_neighbour is accessible
             up=grid[y//w-1][x//w]
             neighbours.append(up)
-            # print("appended up")
-        if not walls["Down"] and y<self.ydim-w:
+        if not walls["Down"] and y<self.ydim-w: # if down_neighbour is accessible
             down=grid[y//w+1][x//w]
             neighbours.append(down)
-            # print("appended down")
-        if not walls["Left"] and x>=w:
+        if not walls["Left"] and x>=w: # if left_neighbour is accessible
             left=grid[y//w][x//w-1]
             neighbours.append(left)
-            # print("appended left")
-        if not walls["Right"] and x<self.xdim-w:
+        if not walls["Right"] and x<self.xdim-w: # if right_neighbour is accessible
             right=grid[y//w][x//w+1]
             neighbours.append(right)
-            # print("appended right")
             
-        if skip in neighbours:
-            # print("removed",skip)
+        if skip in neighbours: # optional argument.. if you want to ignore a particular cell out of neighbours.. used in set_enemies function
             neighbours.remove(skip)
         return neighbours
 
 
     # using DFS again to solve maze
+    # tried using recursion but maximum recursion deppth was exceeded
     def generate_solution(self):
         path={}
         visited=set()
@@ -219,25 +200,33 @@ class Maze:
         # reconstructing the path
         c=self.grid_cells[n-1][n-1]
         d=c #just initializing
-        solution_path=[]
+        directed_path=[] 
         solution_path_proper=[c]
         while c != self.grid_cells[0][0] :
             d=path[c] # d is the parent 
             solution_path_proper.append(d)
             if d.x<c.x:
-                solution_path.append("R") 
+                directed_path.append("R") 
             if d.x>c.x:
-                solution_path.append("L")
+                directed_path.append("L")
             if d.y>c.y:
-                solution_path.append("U")  
+                directed_path.append("U")  
             if d.y<c.y:
-                solution_path.append("D")
+                directed_path.append("D")
                 # recall we will actually backtrack
             c=d 
             # updating current cell
 
         solution_path_proper.append(d) 
         solution_path_proper.reverse()
-        solution_path.reverse()
+        directed_path.reverse()
 
-        return solution_path_proper,solution_path
+        # writing directed path in a file path.txt
+        file=open("path.txt", 'w')
+        for directions in directed_path:
+            file.write(f"{directions}, ")
+        file.close()
+
+        return solution_path_proper,directed_path
+    # solution path stores a sequence of cells which lead to the goal
+    # directed path is a sequence of left, right, up, down directions, which again lead us to the goal

@@ -3,6 +3,7 @@ from buttons import *
 
 pygame.init()
 
+# updates hiscore and saves it on a txt file
 def update_hiscore(user_name, score, level):
     levels=["easy", "medium", "hard"]
     file=open(f"./highscores/{levels[level-1]}.txt", 'r')
@@ -55,7 +56,7 @@ def update_hiscore(user_name, score, level):
             file.close()
 
 
-
+# displays highscores by reading from the txt files
 def display_hiscore(level):
     font=pygame.font.SysFont('GAMERIA', 48)
     font2=pygame.font.SysFont('GAMERIA', 36)
@@ -78,11 +79,13 @@ def display_hiscore(level):
 
     display=True
     while display:
+        # displays to screen
         screen.fill((0,0,0))
         leaderboard=font.render("Leaderboard", True, (150,50,0))
         screen.blit(leaderboard, ((screen_width-leaderboard.get_width())//2, screen_height//6))
         level_dis=font.render(f"{levels[level-1]}", True, (150,50,0))
         screen.blit(level_dis, ((screen_width-level_dis.get_width())//2, 2*screen_height//6))
+        
         for i in range(5):
             score_col=(255,200,0) if i==0 else (50,250,0)
             name=font2.render(users[i], True, score_col) 

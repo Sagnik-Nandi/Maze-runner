@@ -2,5 +2,5 @@ This file stores 5 highest scores
 65,Anomalic
 55,Saguboy
 55,Anomalic
+55,ghg
 50,SagNIk
-45,Saguboy
